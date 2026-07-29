@@ -1,0 +1,207 @@
+{
+    "project_name": "Banking Management System",
+    "backend": "FastAPI",
+    "database": "SQLite",
+    "entities": [
+        {
+            "name": "Customer",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "first_name",
+                    "type": "string"
+                },
+                {
+                    "name": "last_name",
+                    "type": "string"
+                },
+                {
+                    "name": "email",
+                    "type": "string"
+                },
+                {
+                    "name": "phone",
+                    "type": "string"
+                },
+                {
+                    "name": "date_of_birth",
+                    "type": "date"
+                },
+                {
+                    "name": "created_at",
+                    "type": "datetime"
+                }
+            ]
+        },
+        {
+            "name": "Branch",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "branch_name",
+                    "type": "string"
+                },
+                {
+                    "name": "branch_code",
+                    "type": "string"
+                },
+                {
+                    "name": "city",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Account",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "account_number",
+                    "type": "string"
+                },
+                {
+                    "name": "account_type",
+                    "type": "string"
+                },
+                {
+                    "name": "balance",
+                    "type": "decimal"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                },
+                {
+                    "name": "created_at",
+                    "type": "datetime"
+                }
+            ]
+        },
+        {
+            "name": "Transaction",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "transaction_type",
+                    "type": "string"
+                },
+                {
+                    "name": "amount",
+                    "type": "decimal"
+                },
+                {
+                    "name": "transaction_date",
+                    "type": "datetime"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Card",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "card_number",
+                    "type": "string"
+                },
+                {
+                    "name": "expiry_date",
+                    "type": "date"
+                },
+                {
+                    "name": "cvv",
+                    "type": "string"
+                },
+                {
+                    "name": "card_type",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Loan",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "loan_type",
+                    "type": "string"
+                },
+                {
+                    "name": "amount",
+                    "type": "decimal"
+                },
+                {
+                    "name": "interest_rate",
+                    "type": "decimal"
+                },
+                {
+                    "name": "tenure_months",
+                    "type": "integer"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "source": "Customer",
+            "target": "Account",
+            "type": "one_to_many",
+            "foreign_key": "customer_id"
+        },
+        {
+            "source": "Account",
+            "target": "Branch",
+            "type": "many_to_one",
+            "foreign_key": "branch_id"
+        },
+        {
+            "source": "Account",
+            "target": "Transaction",
+            "type": "one_to_many",
+            "foreign_key": "account_id"
+        },
+        {
+            "source": "Customer",
+            "target": "Loan",
+            "type": "one_to_many",
+            "foreign_key": "customer_id"
+        },
+        {
+            "source": "Customer",
+            "target": "Card",
+            "type": "one_to_many",
+            "foreign_key": "customer_id"
+        },
+        {
+            "source": "Card",
+            "target": "Account",
+            "type": "many_to_one",
+            "foreign_key": "account_id"
+        }
+    ]
+}

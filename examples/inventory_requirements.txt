@@ -1,0 +1,67 @@
+Project Name:
+Inventory Management System
+
+Overview:
+The system manages products, warehouses, suppliers, inventory and purchase orders.
+
+=========================================
+Entities
+=========================================
+
+Product
+- id : integer
+- name : string
+- sku : string
+- price : decimal
+
+Warehouse
+- id : integer
+- name : string
+- city : string
+
+Supplier
+- id : integer
+- name : string
+- email : string
+
+Inventory
+- id : integer
+- quantity : integer
+- last_updated : datetime
+
+PurchaseOrder
+- id : integer
+- order_date : date
+- status : string
+
+=========================================
+Relationships
+=========================================
+
+Supplier supplies many Products.
+
+Warehouse stores many Inventory records.
+
+Inventory belongs to one Product.
+
+PurchaseOrder contains many Products.
+
+=========================================
+Business Requirements
+=========================================
+
+Generate CRUD APIs.
+
+Generate SQLAlchemy Models.
+
+Generate Pydantic Schemas.
+
+Generate Repository Layer.
+
+Generate Service Layer.
+
+Generate FastAPI APIs.
+
+Generate Tests.
+
+Generate Docker support.

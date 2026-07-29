@@ -1,0 +1,69 @@
+Project Name:
+Hotel Management System
+
+Overview:
+The system manages guests, rooms, reservations, payments and hotel staff.
+
+=========================================
+Entities
+=========================================
+
+Guest
+- id : integer
+- name : string
+- phone : string
+- email : string
+
+Room
+- id : integer
+- room_number : string
+- room_type : string
+- price : decimal
+- status : string
+
+Reservation
+- id : integer
+- check_in : date
+- check_out : date
+- status : string
+
+Payment
+- id : integer
+- amount : decimal
+- payment_date : datetime
+- payment_method : string
+
+Staff
+- id : integer
+- name : string
+- designation : string
+
+=========================================
+Relationships
+=========================================
+
+Guest has many Reservations.
+
+Room has many Reservations.
+
+Reservation has one Payment.
+
+=========================================
+Business Requirements
+=========================================
+
+Generate CRUD APIs.
+
+Generate SQLAlchemy Models.
+
+Generate Pydantic Schemas.
+
+Generate Repository Layer.
+
+Generate Service Layer.
+
+Generate FastAPI APIs.
+
+Generate Tests.
+
+Generate Docker support.

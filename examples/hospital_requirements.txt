@@ -1,0 +1,18 @@
+Build a Hospital Management System.
+
+Entities:
+- Patient (id, name, age, gender)
+- Doctor (id, name, specialization)
+- Appointment (id, patient_id, doctor_id, appointment_date)
+
+Relationships:
+- One Patient can have many Appointments.
+- One Doctor can have many Appointments.
+
+Generate:
+- SQLAlchemy models
+- Pydantic schemas
+- Repository layer
+- Service layer
+- FastAPI CRUD APIs
+- Tests

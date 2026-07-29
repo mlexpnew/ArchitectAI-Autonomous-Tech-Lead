@@ -1,0 +1,268 @@
+{
+    "project_name": "E-Commerce Management System",
+    "backend": "FastAPI",
+    "database": "SQLite",
+    "entities": [
+        {
+            "name": "Customer",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "first_name",
+                    "type": "string"
+                },
+                {
+                    "name": "last_name",
+                    "type": "string"
+                },
+                {
+                    "name": "email",
+                    "type": "string"
+                },
+                {
+                    "name": "phone",
+                    "type": "string"
+                },
+                {
+                    "name": "password",
+                    "type": "string"
+                },
+                {
+                    "name": "created_at",
+                    "type": "datetime"
+                }
+            ]
+        },
+        {
+            "name": "Category",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Product",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "sku",
+                    "type": "string"
+                },
+                {
+                    "name": "price",
+                    "type": "decimal"
+                },
+                {
+                    "name": "stock_quantity",
+                    "type": "integer"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                },
+                {
+                    "name": "created_at",
+                    "type": "datetime"
+                }
+            ]
+        },
+        {
+            "name": "Cart",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "created_at",
+                    "type": "datetime"
+                }
+            ]
+        },
+        {
+            "name": "CartItem",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "quantity",
+                    "type": "integer"
+                }
+            ]
+        },
+        {
+            "name": "Order",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "order_date",
+                    "type": "datetime"
+                },
+                {
+                    "name": "total_amount",
+                    "type": "decimal"
+                },
+                {
+                    "name": "order_status",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "OrderItem",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "quantity",
+                    "type": "integer"
+                },
+                {
+                    "name": "unit_price",
+                    "type": "decimal"
+                }
+            ]
+        },
+        {
+            "name": "Payment",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "payment_method",
+                    "type": "string"
+                },
+                {
+                    "name": "payment_status",
+                    "type": "string"
+                },
+                {
+                    "name": "payment_date",
+                    "type": "datetime"
+                },
+                {
+                    "name": "amount",
+                    "type": "decimal"
+                }
+            ]
+        },
+        {
+            "name": "Address",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "street",
+                    "type": "string"
+                },
+                {
+                    "name": "city",
+                    "type": "string"
+                },
+                {
+                    "name": "state",
+                    "type": "string"
+                },
+                {
+                    "name": "postal_code",
+                    "type": "string"
+                },
+                {
+                    "name": "country",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "source": "Customer",
+            "target": "Address",
+            "type": "one_to_many",
+            "foreign_key": "customer_id"
+        },
+        {
+            "source": "Customer",
+            "target": "Cart",
+            "type": "one_to_one",
+            "foreign_key": "customer_id"
+        },
+        {
+            "source": "Cart",
+            "target": "CartItem",
+            "type": "one_to_many",
+            "foreign_key": "cart_id"
+        },
+        {
+            "source": "CartItem",
+            "target": "Product",
+            "type": "many_to_one",
+            "foreign_key": "product_id"
+        },
+        {
+            "source": "Customer",
+            "target": "Order",
+            "type": "one_to_many",
+            "foreign_key": "customer_id"
+        },
+        {
+            "source": "Order",
+            "target": "OrderItem",
+            "type": "one_to_many",
+            "foreign_key": "order_id"
+        },
+        {
+            "source": "OrderItem",
+            "target": "Product",
+            "type": "many_to_one",
+            "foreign_key": "product_id"
+        },
+        {
+            "source": "Order",
+            "target": "Payment",
+            "type": "one_to_one",
+            "foreign_key": "order_id"
+        },
+        {
+            "source": "Category",
+            "target": "Product",
+            "type": "one_to_many",
+            "foreign_key": "category_id"
+        }
+    ]
+}

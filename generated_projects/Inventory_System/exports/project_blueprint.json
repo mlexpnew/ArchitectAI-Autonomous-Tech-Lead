@@ -1,0 +1,122 @@
+{
+    "project_name": "Inventory Management System",
+    "backend": "FastAPI",
+    "database": "SQLite",
+    "entities": [
+        {
+            "name": "Product",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "sku",
+                    "type": "string"
+                },
+                {
+                    "name": "price",
+                    "type": "decimal"
+                }
+            ]
+        },
+        {
+            "name": "Warehouse",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "city",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Supplier",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "email",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Inventory",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "quantity",
+                    "type": "integer"
+                },
+                {
+                    "name": "last_updated",
+                    "type": "datetime"
+                }
+            ]
+        },
+        {
+            "name": "PurchaseOrder",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "order_date",
+                    "type": "date"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "source": "Supplier",
+            "target": "Product",
+            "type": "one_to_many",
+            "foreign_key": "supplier_id"
+        },
+        {
+            "source": "Warehouse",
+            "target": "Inventory",
+            "type": "one_to_many",
+            "foreign_key": "warehouse_id"
+        },
+        {
+            "source": "Product",
+            "target": "Inventory",
+            "type": "one_to_many",
+            "foreign_key": "product_id"
+        },
+        {
+            "source": "PurchaseOrder",
+            "target": "Product",
+            "type": "many_to_many",
+            "foreign_key": null
+        }
+    ]
+}

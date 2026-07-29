@@ -1,0 +1,81 @@
+{
+    "generator": "ArchitectAI",
+    "project_name": "Hospital Management System",
+    "backend": "FastAPI",
+    "database": "SQLite",
+    "entities": [
+        {
+            "name": "Patient",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "age",
+                    "type": "integer"
+                },
+                {
+                    "name": "gender",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Doctor",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "specialization",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Appointment",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "patient_id",
+                    "type": "integer"
+                },
+                {
+                    "name": "doctor_id",
+                    "type": "integer"
+                },
+                {
+                    "name": "appointment_date",
+                    "type": "date"
+                }
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "source": "Patient",
+            "target": "Appointment",
+            "relationship_type": "one_to_many",
+            "foreign_key": "patient_id"
+        },
+        {
+            "source": "Doctor",
+            "target": "Appointment",
+            "relationship_type": "one_to_many",
+            "foreign_key": "doctor_id"
+        }
+    ]
+}

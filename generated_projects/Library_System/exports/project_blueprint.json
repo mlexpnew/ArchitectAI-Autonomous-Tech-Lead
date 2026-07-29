@@ -1,0 +1,138 @@
+{
+    "project_name": "Library Management System",
+    "backend": "FastAPI",
+    "database": "SQLite",
+    "entities": [
+        {
+            "name": "Book",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "isbn",
+                    "type": "string"
+                },
+                {
+                    "name": "publication_year",
+                    "type": "integer"
+                },
+                {
+                    "name": "available_copies",
+                    "type": "integer"
+                }
+            ]
+        },
+        {
+            "name": "Author",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "first_name",
+                    "type": "string"
+                },
+                {
+                    "name": "last_name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Publisher",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "city",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Member",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "email",
+                    "type": "string"
+                },
+                {
+                    "name": "phone",
+                    "type": "string"
+                },
+                {
+                    "name": "membership_date",
+                    "type": "date"
+                }
+            ]
+        },
+        {
+            "name": "BorrowRecord",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "borrow_date",
+                    "type": "date"
+                },
+                {
+                    "name": "due_date",
+                    "type": "date"
+                },
+                {
+                    "name": "return_date",
+                    "type": "date"
+                }
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "source": "Author",
+            "target": "Book",
+            "type": "one_to_many",
+            "foreign_key": "author_id"
+        },
+        {
+            "source": "Publisher",
+            "target": "Book",
+            "type": "one_to_many",
+            "foreign_key": "publisher_id"
+        },
+        {
+            "source": "Member",
+            "target": "BorrowRecord",
+            "type": "one_to_many",
+            "foreign_key": "member_id"
+        },
+        {
+            "source": "Book",
+            "target": "BorrowRecord",
+            "type": "one_to_many",
+            "foreign_key": "book_id"
+        }
+    ]
+}

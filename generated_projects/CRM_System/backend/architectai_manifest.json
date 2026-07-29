@@ -1,0 +1,135 @@
+{
+    "generator": "ArchitectAI",
+    "project_name": "CRM Management System",
+    "backend": "FastAPI",
+    "database": "SQLite",
+    "entities": [
+        {
+            "name": "Lead",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "email",
+                    "type": "string"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Customer",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "email",
+                    "type": "string"
+                },
+                {
+                    "name": "phone",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Employee",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "department",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Opportunity",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "value",
+                    "type": "decimal"
+                },
+                {
+                    "name": "stage",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Task",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "due_date",
+                    "type": "date"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "source": "Lead",
+            "target": "Customer",
+            "relationship_type": "one_to_one",
+            "foreign_key": null
+        },
+        {
+            "source": "Customer",
+            "target": "Opportunity",
+            "relationship_type": "one_to_many",
+            "foreign_key": "customer_id"
+        },
+        {
+            "source": "Employee",
+            "target": "Opportunity",
+            "relationship_type": "one_to_many",
+            "foreign_key": "employee_id"
+        },
+        {
+            "source": "Opportunity",
+            "target": "Task",
+            "relationship_type": "one_to_many",
+            "foreign_key": "opportunity_id"
+        }
+    ]
+}

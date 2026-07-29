@@ -1,0 +1,69 @@
+Project Name:
+School Management System
+
+Overview:
+The system manages students, teachers, courses, departments and enrollments.
+
+=========================================
+Entities
+=========================================
+
+Student
+- id : integer
+- name : string
+- email : string
+- dob : date
+
+Teacher
+- id : integer
+- name : string
+- email : string
+- designation : string
+
+Department
+- id : integer
+- name : string
+
+Course
+- id : integer
+- title : string
+- credits : integer
+
+Enrollment
+- id : integer
+- enrollment_date : date
+- grade : string
+
+=========================================
+Relationships
+=========================================
+
+Department has many Teachers.
+
+Department has many Courses.
+
+Teacher teaches many Courses.
+
+Student has many Enrollments.
+
+Course has many Enrollments.
+
+=========================================
+Business Requirements
+=========================================
+
+Generate CRUD APIs.
+
+Generate SQLAlchemy Models.
+
+Generate Pydantic Schemas.
+
+Generate Repository Layer.
+
+Generate Service Layer.
+
+Generate FastAPI APIs.
+
+Generate Tests.
+
+Generate Docker support.

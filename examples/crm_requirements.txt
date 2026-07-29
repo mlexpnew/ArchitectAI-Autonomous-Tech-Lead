@@ -1,0 +1,70 @@
+Project Name:
+CRM Management System
+
+Overview:
+The system manages leads, customers, employees, opportunities and tasks.
+
+=========================================
+Entities
+=========================================
+
+Lead
+- id : integer
+- name : string
+- email : string
+- status : string
+
+Customer
+- id : integer
+- name : string
+- email : string
+- phone : string
+
+Employee
+- id : integer
+- name : string
+- department : string
+
+Opportunity
+- id : integer
+- title : string
+- value : decimal
+- stage : string
+
+Task
+- id : integer
+- title : string
+- due_date : date
+- status : string
+
+=========================================
+Relationships
+=========================================
+
+Lead converts to Customer.
+
+Customer has many Opportunities.
+
+Employee manages many Opportunities.
+
+Opportunity has many Tasks.
+
+=========================================
+Business Requirements
+=========================================
+
+Generate CRUD APIs.
+
+Generate SQLAlchemy Models.
+
+Generate Pydantic Schemas.
+
+Generate Repository Layer.
+
+Generate Service Layer.
+
+Generate FastAPI APIs.
+
+Generate Tests.
+
+Generate Docker support.

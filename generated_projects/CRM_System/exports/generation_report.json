@@ -1,0 +1,189 @@
+{
+    "generator": "ArchitectAI Autonomous Tech Lead",
+    "generated_at": "2026-07-29T09:44:41.700927+00:00",
+    "project_name": "CRM Management System",
+    "statistics": {
+        "entities": 5,
+        "relationships": 4,
+        "models": 5,
+        "schemas": 5,
+        "repositories": 5,
+        "services": 5,
+        "apis": 5,
+        "python_files": 40,
+        "total_files": 98
+    },
+    "metrics": {
+        "lines_of_code": 0,
+        "python_files": 40,
+        "total_files": 98,
+        "entities_generated": 5,
+        "relationships_generated": 4,
+        "models_generated": 5,
+        "schemas_generated": 5,
+        "repositories_generated": 5,
+        "services_generated": 5,
+        "apis_generated": 5,
+        "validation_status": "passed",
+        "tests_passed": 10,
+        "tests_failed": 0
+    },
+    "entities": [
+        {
+            "name": "Lead",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "email",
+                    "type": "string"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Customer",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "email",
+                    "type": "string"
+                },
+                {
+                    "name": "phone",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Employee",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "department",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Opportunity",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "value",
+                    "type": "decimal"
+                },
+                {
+                    "name": "stage",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Task",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "due_date",
+                    "type": "date"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "source": "Lead",
+            "target": "Customer",
+            "type": "one_to_one",
+            "foreign_key": null
+        },
+        {
+            "source": "Customer",
+            "target": "Opportunity",
+            "type": "one_to_many",
+            "foreign_key": "customer_id"
+        },
+        {
+            "source": "Employee",
+            "target": "Opportunity",
+            "type": "one_to_many",
+            "foreign_key": "employee_id"
+        },
+        {
+            "source": "Opportunity",
+            "target": "Task",
+            "type": "one_to_many",
+            "foreign_key": "opportunity_id"
+        }
+    ],
+    "validation": {
+        "valid": true,
+        "errors": [],
+        "tests": {
+            "passed": true,
+            "returncode": 0,
+            "stdout": "..........                                                               [100%]\n=============================== warnings summary ===============================\n../../../.venv/lib/python3.12/site-packages/fastapi/testclient.py:1\n  /Users/chandini/ArchitectAI-Autonomous-Tech-Lead/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n10 passed, 1 warning in 0.05s\n",
+            "stderr": ""
+        }
+    },
+    "test_summary": {
+        "passed": 10,
+        "failed": 0,
+        "warnings": 1
+    },
+    "self_healing": {
+        "required": false,
+        "healed": null,
+        "attempts": 0
+    },
+    "workflow_results": {
+        "database": null,
+        "backend": null,
+        "security": null,
+        "qa": null,
+        "devops": null,
+        "documentation": null
+    },
+    "artifacts": []
+}

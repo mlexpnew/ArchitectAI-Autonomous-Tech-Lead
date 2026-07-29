@@ -1,0 +1,129 @@
+{
+    "generator": "ArchitectAI",
+    "project_name": "School Management System",
+    "backend": "FastAPI",
+    "database": "SQLite",
+    "entities": [
+        {
+            "name": "Student",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "email",
+                    "type": "string"
+                },
+                {
+                    "name": "dob",
+                    "type": "date"
+                }
+            ]
+        },
+        {
+            "name": "Teacher",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "email",
+                    "type": "string"
+                },
+                {
+                    "name": "designation",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Department",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Course",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "credits",
+                    "type": "integer"
+                }
+            ]
+        },
+        {
+            "name": "Enrollment",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "enrollment_date",
+                    "type": "date"
+                },
+                {
+                    "name": "grade",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "source": "Department",
+            "target": "Teacher",
+            "relationship_type": "one_to_many",
+            "foreign_key": "department_id"
+        },
+        {
+            "source": "Department",
+            "target": "Course",
+            "relationship_type": "one_to_many",
+            "foreign_key": "department_id"
+        },
+        {
+            "source": "Teacher",
+            "target": "Course",
+            "relationship_type": "many_to_many",
+            "foreign_key": null
+        },
+        {
+            "source": "Student",
+            "target": "Enrollment",
+            "relationship_type": "one_to_many",
+            "foreign_key": "student_id"
+        },
+        {
+            "source": "Course",
+            "target": "Enrollment",
+            "relationship_type": "one_to_many",
+            "foreign_key": "course_id"
+        }
+    ]
+}

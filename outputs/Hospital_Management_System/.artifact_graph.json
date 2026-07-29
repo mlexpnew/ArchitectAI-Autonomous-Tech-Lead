@@ -1,0 +1,31 @@
+{
+    "PatientModel": {
+        "plugin": "model",
+        "file_path": "backend/app/models/patient.py",
+        "dependencies": [],
+        "dependents": [
+            "PatientSchema"
+        ],
+        "prompt_hash": "6ff496dd5a036535e52a57dadfb28341fd37526849bb1a1ad25d4c18b6bba0c6"
+    },
+    "PatientSchema": {
+        "plugin": "schema",
+        "file_path": "backend/app/schemas/patient.py",
+        "dependencies": [
+            "PatientModel"
+        ],
+        "dependents": [
+            "PatientRepository"
+        ],
+        "prompt_hash": ""
+    },
+    "PatientRepository": {
+        "plugin": "repository",
+        "file_path": "backend/app/repositories/patient_repository.py",
+        "dependencies": [
+            "PatientSchema"
+        ],
+        "dependents": [],
+        "prompt_hash": ""
+    }
+}

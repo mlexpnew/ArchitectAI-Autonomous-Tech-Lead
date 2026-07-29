@@ -1,0 +1,132 @@
+{
+    "project_name": "Hotel Management System",
+    "backend": "FastAPI",
+    "database": "SQLite",
+    "entities": [
+        {
+            "name": "Guest",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "phone",
+                    "type": "string"
+                },
+                {
+                    "name": "email",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Room",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "room_number",
+                    "type": "string"
+                },
+                {
+                    "name": "room_type",
+                    "type": "string"
+                },
+                {
+                    "name": "price",
+                    "type": "decimal"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Reservation",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "check_in",
+                    "type": "date"
+                },
+                {
+                    "name": "check_out",
+                    "type": "date"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Payment",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "amount",
+                    "type": "decimal"
+                },
+                {
+                    "name": "payment_date",
+                    "type": "datetime"
+                },
+                {
+                    "name": "payment_method",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Staff",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "integer"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "designation",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "source": "Guest",
+            "target": "Reservation",
+            "type": "one_to_many",
+            "foreign_key": "guest_id"
+        },
+        {
+            "source": "Room",
+            "target": "Reservation",
+            "type": "one_to_many",
+            "foreign_key": "room_id"
+        },
+        {
+            "source": "Reservation",
+            "target": "Payment",
+            "type": "one_to_one",
+            "foreign_key": "reservation_id"
+        }
+    ]
+}

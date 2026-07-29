@@ -1,0 +1,7 @@
+Generate a SQLAlchemy repository.
+
+Requirements:
+
+{requirements}
+
+Output only Python.

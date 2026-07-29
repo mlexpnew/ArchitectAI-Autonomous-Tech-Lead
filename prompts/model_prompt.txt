@@ -1,0 +1,14 @@
+Generate a production-ready SQLAlchemy model.
+
+Requirements:
+
+{requirements}
+
+Rules:
+
+- SQLAlchemy 2.0
+- Python 3.12
+- Type hints
+- Clean code
+- No explanation
+- Output only Python code

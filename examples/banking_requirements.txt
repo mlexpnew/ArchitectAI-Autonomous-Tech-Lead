@@ -1,0 +1,114 @@
+Project Name:
+Banking Management System
+
+Overview:
+The system manages customers, bank accounts, transactions, debit cards, loans, and branches. Customers can open multiple accounts, perform transactions, apply for loans, and receive debit cards.
+
+=========================================
+Entities
+=========================================
+
+Customer
+- id : integer
+- first_name : string
+- last_name : string
+- email : string
+- phone : string
+- date_of_birth : date
+- created_at : datetime
+
+Branch
+- id : integer
+- branch_name : string
+- branch_code : string
+- city : string
+
+Account
+- id : integer
+- account_number : string
+- account_type : string
+- balance : decimal
+- status : string
+- created_at : datetime
+
+Transaction
+- id : integer
+- transaction_type : string
+- amount : decimal
+- transaction_date : datetime
+- description : string
+
+Card
+- id : integer
+- card_number : string
+- expiry_date : date
+- cvv : string
+- card_type : string
+
+Loan
+- id : integer
+- loan_type : string
+- amount : decimal
+- interest_rate : decimal
+- tenure_months : integer
+- status : string
+
+=========================================
+Relationships
+=========================================
+
+A Customer can own many Accounts.
+
+Each Account belongs to one Branch.
+
+Each Account can have many Transactions.
+
+A Customer can have many Loans.
+
+Each Customer can have many Cards.
+
+Each Card belongs to one Account.
+
+=========================================
+Business Requirements
+=========================================
+
+Generate CRUD APIs.
+
+Generate SQLAlchemy Models.
+
+Generate Pydantic Schemas.
+
+Generate Repository Layer.
+
+Generate Service Layer.
+
+Generate FastAPI APIs.
+
+Generate Unit Tests.
+
+Generate Docker support.
+
+Generate requirements.txt.
+
+Generate README.md.
+
+Generate environment configuration.
+
+Generate export package.
+
+=========================================
+Validation Rules
+=========================================
+
+Email must be unique.
+
+Account Number must be unique.
+
+Card Number must be unique.
+
+Balance cannot be negative.
+
+Loan amount must be greater than zero.
+
+Transaction amount must be greater than zero.

@@ -1,0 +1,151 @@
+Project Name:
+E-Commerce Management System
+
+Overview:
+The system manages customers, products, categories, shopping carts, orders, payments, and inventory. Customers can browse products, add items to their cart, place orders, and complete payments.
+
+=========================================
+Entities
+=========================================
+
+Customer
+- id : integer
+- first_name : string
+- last_name : string
+- email : string
+- phone : string
+- password : string
+- created_at : datetime
+
+Category
+- id : integer
+- name : string
+- description : string
+
+Product
+- id : integer
+- name : string
+- description : string
+- sku : string
+- price : decimal
+- stock_quantity : integer
+- status : string
+- created_at : datetime
+
+Cart
+- id : integer
+- created_at : datetime
+
+CartItem
+- id : integer
+- quantity : integer
+
+Order
+- id : integer
+- order_date : datetime
+- total_amount : decimal
+- order_status : string
+
+OrderItem
+- id : integer
+- quantity : integer
+- unit_price : decimal
+
+Payment
+- id : integer
+- payment_method : string
+- payment_status : string
+- payment_date : datetime
+- amount : decimal
+
+Address
+- id : integer
+- street : string
+- city : string
+- state : string
+- postal_code : string
+- country : string
+
+=========================================
+Relationships
+=========================================
+
+A Customer can have many Addresses.
+
+A Customer owns one Shopping Cart.
+
+A Shopping Cart contains many Cart Items.
+
+Each Cart Item belongs to one Product.
+
+A Customer can place many Orders.
+
+Each Order contains many Order Items.
+
+Each Order Item belongs to one Product.
+
+Each Order has one Payment.
+
+Each Category contains many Products.
+
+=========================================
+Business Requirements
+=========================================
+
+Generate CRUD APIs for every entity.
+
+Use SQLAlchemy ORM.
+
+Use Pydantic schemas.
+
+Generate Repository Layer.
+
+Generate Service Layer.
+
+Generate FastAPI REST APIs.
+
+Generate Unit Tests.
+
+Generate Docker support.
+
+Generate requirements.txt.
+
+Generate README.md.
+
+Generate environment configuration.
+
+Generate project export package.
+
+=========================================
+Validation Rules
+=========================================
+
+Email must be unique.
+
+SKU must be unique.
+
+Price must be greater than zero.
+
+Stock quantity cannot be negative.
+
+Order total must be greater than zero.
+
+Payment amount must match order total.
+
+=========================================
+Expected Architecture
+=========================================
+
+Backend/
+    Models
+    Schemas
+    Repositories
+    Services
+    API
+    Tests
+
+Use clean architecture.
+
+Follow FastAPI best practices.
+
+Generate production-ready Python code.

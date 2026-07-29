@@ -1,0 +1,73 @@
+Project Name:
+Library Management System
+
+Overview:
+The system manages books, members, authors, publishers and borrowing records.
+
+=========================================
+Entities
+=========================================
+
+Book
+- id : integer
+- title : string
+- isbn : string
+- publication_year : integer
+- available_copies : integer
+
+Author
+- id : integer
+- first_name : string
+- last_name : string
+
+Publisher
+- id : integer
+- name : string
+- city : string
+
+Member
+- id : integer
+- name : string
+- email : string
+- phone : string
+- membership_date : date
+
+BorrowRecord
+- id : integer
+- borrow_date : date
+- due_date : date
+- return_date : date
+
+=========================================
+Relationships
+=========================================
+
+One Author writes many Books.
+
+One Publisher publishes many Books.
+
+One Member can borrow many Books.
+
+One BorrowRecord belongs to one Book.
+
+One BorrowRecord belongs to one Member.
+
+=========================================
+Business Requirements
+=========================================
+
+Generate CRUD APIs.
+
+Generate SQLAlchemy Models.
+
+Generate Pydantic Schemas.
+
+Generate Repository Layer.
+
+Generate Service Layer.
+
+Generate FastAPI APIs.
+
+Generate Tests.
+
+Generate Docker support.

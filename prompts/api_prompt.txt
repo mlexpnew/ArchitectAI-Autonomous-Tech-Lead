@@ -1,0 +1,14 @@
+Generate a production-ready FastAPI router.
+
+Requirements:
+
+{requirements}
+
+Rules:
+
+- FastAPI
+- Dependency Injection
+- CRUD
+- Response Models
+- No explanation
+- Output only Python
