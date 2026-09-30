@@ -255,6 +255,13 @@ class AICodeGenerator:
                     if marker in result:
                         result = result.split(marker)[0].strip()
 
+                # Sanitize output via security guardrails before returning
+                try:
+                    from security_guardrails.guardrail_manager import get_guardrails
+                    result, _ = get_guardrails().sanitize_output(result, resource="AICodeGenerator")
+                except Exception:
+                    pass
+
                 # Record Telemetry
                 telemetry = get_active_telemetry()
                 if telemetry:

@@ -85,8 +85,19 @@ class DueDiligencePackager:
                     "description": "Raw JSON dependency catalog with risk ratings",
                     "category": "Legal & Intellectual Property",
                 },
+                {
+                    "file": "SOC2_COMPLIANCE_REPORT.md",
+                    "description": "SOC2 Type II Security, Confidentiality & Audit Log Report",
+                    "category": "Enterprise Security & Compliance",
+                },
             ],
         }
+
+        # Also copy SOC2 report into due_diligence if present in security_guardrails
+        soc2_src = Path("security_guardrails/SOC2_COMPLIANCE_REPORT.md")
+        soc2_dest = self.output_dir / "SOC2_COMPLIANCE_REPORT.md"
+        if soc2_src.exists():
+            soc2_dest.write_text(soc2_src.read_text(encoding="utf-8"), encoding="utf-8")
 
         index_path = self.output_dir / "DATA_ROOM_INDEX.json"
         index_path.write_text(json.dumps(index_data, indent=4), encoding="utf-8")
@@ -97,6 +108,7 @@ class DueDiligencePackager:
             "EXECUTIVE_SYSTEM_ARCHITECTURE_WHITEPAPER.md",
             "LICENSE_COMPLIANCE_AUDIT.md",
             "BENCHMARK_REPORT.md",
+            "SOC2_COMPLIANCE_REPORT.md",
             "sbom.json",
             "license_audit_report.json",
             "benchmark_report.json",

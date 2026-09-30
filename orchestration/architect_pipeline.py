@@ -55,9 +55,12 @@ class ArchitectPipeline:
         requirements: str,
         project_name: str = "Generated Project",
         model_override: str | None = None,
+        actor_role: str = "LEAD_ARCHITECT",
+        actor_name: str = "User",
     ):
         """
-        Execute the complete ArchitectAI pipeline with real-time token telemetry.
+        Execute the complete ArchitectAI pipeline with real-time token telemetry
+        and enterprise security guardrails (prompt injection defense, secret redaction, SOC2 audit logging).
         """
         if not requirements.strip():
             raise ValueError(
@@ -66,6 +69,16 @@ class ArchitectPipeline:
 
         if model_override:
             settings.switch_model(model_override)
+
+        # Enterprise Security Guardrails: Validate input & scan for injections/secrets
+        from security_guardrails.guardrail_manager import get_guardrails
+        guardrails = get_guardrails()
+        sanitized_requirements, sec_meta = guardrails.validate_input(
+            text=requirements,
+            actor_role=actor_role,
+            actor_name=actor_name,
+            resource=project_name,
+        )
 
         # Initialize run-level token telemetry
         active_model = settings.get_active_model()
@@ -90,7 +103,7 @@ class ArchitectPipeline:
 
             self.blueprint = (
                 self.backend_pipeline.generate_from_requirements(
-                    requirements
+                    sanitized_requirements
                 )
             )
 
@@ -298,6 +311,19 @@ class ArchitectPipeline:
                 telemetry=telemetry_summary,
             )
 
+            guardrails.record_pipeline_lifecycle(
+                action="Pipeline Generation Completed",
+                project_name=project_name,
+                actor_role=actor_role,
+                status="SUCCESS",
+                details={
+                    "project_name": project_name,
+                    "model_used": active_model,
+                    "total_tokens": telemetry_summary["total_tokens"],
+                    "total_cost_usd": telemetry_summary["cost_usd"],
+                },
+            )
+
             result = {
                 "project_name": project_name,
                 "output_dir": str(self.output_dir),
@@ -308,6 +334,7 @@ class ArchitectPipeline:
                 "artifacts": artifacts,
                 "export": export_result,
                 "telemetry": telemetry_summary,
+                "security_guardrails": sec_meta,
             }
 
             print("\n" + "=" * 70)

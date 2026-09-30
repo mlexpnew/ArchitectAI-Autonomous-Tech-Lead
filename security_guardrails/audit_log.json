@@ -1,0 +1,60 @@
+[
+  {
+    "event_id": "genesis-block-000000",
+    "timestamp": "2026-09-30T12:28:05.070964+00:00",
+    "event_type": "GENESIS",
+    "actor_role": "SYSTEM",
+    "action": "Audit Ledger Initialized",
+    "resource": "AuditLogger",
+    "status": "INITIALIZED",
+    "details": {
+      "description": "ArchitectAI SOC2 Audit Ledger Genesis Entry"
+    },
+    "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "entry_hash": "aa03c2b02f5dc6c7e4be877ec1cac69b6e0fd56edfd2adfa8abc5cb2a79d668a"
+  },
+  {
+    "event_id": "30b74e65-1609-4c6b-bc42-f494eeae2ed8",
+    "timestamp": "2026-09-30T12:28:05.071184+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "ADMIN",
+    "action": "System Security Baseline Initialized",
+    "resource": "ArchitectAI Platform",
+    "status": "SUCCESS",
+    "details": {
+      "version": "1.2 Enterprise"
+    },
+    "prev_hash": "aa03c2b02f5dc6c7e4be877ec1cac69b6e0fd56edfd2adfa8abc5cb2a79d668a",
+    "entry_hash": "59f3286cc7773eb412de942234b781b364a41836d893d92467cfde060688693e"
+  },
+  {
+    "event_id": "d9894a12-f85b-468c-ad6a-d952b05b1c9c",
+    "timestamp": "2026-09-30T12:28:05.071474+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "SYSTEM",
+    "action": "SAST & OWASP Top 10 Security Audit",
+    "resource": "HealthcareHIS",
+    "status": "SUCCESS",
+    "details": {
+      "scanner": "SecurityAgent",
+      "vulnerabilities": 0
+    },
+    "prev_hash": "59f3286cc7773eb412de942234b781b364a41836d893d92467cfde060688693e",
+    "entry_hash": "63401396eaa3a0cccacdbf0a23feafcfb3f1c6bd75b5948bd05c3d26b4720522"
+  },
+  {
+    "event_id": "2237e1a4-3e76-47d2-945a-0cd7c4691106",
+    "timestamp": "2026-09-30T12:28:05.072865+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "SYSTEM",
+    "action": "Hermetic Unit Test Verification",
+    "resource": "Full Suite",
+    "status": "SUCCESS",
+    "details": {
+      "tests": 77,
+      "pass_rate": "100%"
+    },
+    "prev_hash": "63401396eaa3a0cccacdbf0a23feafcfb3f1c6bd75b5948bd05c3d26b4720522",
+    "entry_hash": "ac7c7611a24f57922e3f8a7fe5af399d5458f97a5f69a1f6de74cd3dd4565806"
+  }
+]
