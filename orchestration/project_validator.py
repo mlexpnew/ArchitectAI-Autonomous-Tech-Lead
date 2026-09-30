@@ -16,6 +16,7 @@ import sys
 class ProjectValidator:
 
     REQUIRED_FILES = [
+        "app/__init__.py",
         "app/main.py",
         "app/database.py",
         "app/models/__init__.py",
@@ -179,8 +180,12 @@ class ProjectValidator:
             "\n🧪 Running Generated Tests..."
         )
 
-        env = os.environ.copy()
         backend_path = str(self.backend_dir.resolve())
+        backend_pytest_ini = self.backend_dir / "pytest.ini"
+        if not backend_pytest_ini.exists():
+            backend_pytest_ini.write_text("[pytest]\ntestpaths = tests\npython_files = test_*.py\npythonpath = .\n", encoding="utf-8")
+
+        env = os.environ.copy()
         env["PYTHONPATH"] = (
             f"{backend_path}{os.pathsep}{env.get('PYTHONPATH', '')}"
             if env.get("PYTHONPATH")
@@ -196,6 +201,8 @@ class ProjectValidator:
                     "pytest",
                     "tests",
                     "-q",
+                    "-c",
+                    "pytest.ini",
                     "-o",
                     f"rootdir={backend_path}",
                 ],

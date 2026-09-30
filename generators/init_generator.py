@@ -17,14 +17,24 @@ class InitGenerator:
 
     def generate(self):
 
-        folders = [
-            "backend/app",
-            "backend/app/models",
-            "backend/app/schemas",
-            "backend/app/repositories",
-            "backend/app/services",
-            "backend/app/api",
-        ]
+        if self.output_dir.name == "backend":
+            folders = [
+                "app",
+                "app/models",
+                "app/schemas",
+                "app/repositories",
+                "app/services",
+                "app/api",
+            ]
+        else:
+            folders = [
+                "backend/app",
+                "backend/app/models",
+                "backend/app/schemas",
+                "backend/app/repositories",
+                "backend/app/services",
+                "backend/app/api",
+            ]
 
         for folder in folders:
 
@@ -32,7 +42,7 @@ class InitGenerator:
                 self.output_dir
                 / folder
                 / "__init__.py",
-                "",
+                '"""\nApplication package initialization.\n"""\n',
             )
 
         print("✅ Generated __init__.py files")

@@ -506,7 +506,7 @@ A Driver accepts the Ride and completes Payment.""",
                 </div>
                 <div class="stage-row done">
                     <span class="stage-icon">✓</span>
-                    <span class="stage-text">Docker & bundle packaging</span>
+                    <span class="stage-text">Docker, K8s & Helm packaging</span>
                     <span class="stage-desc">Ready</span>
                 </div>
                 """, unsafe_allow_html=True)
@@ -514,18 +514,22 @@ A Driver accepts the Ride and completes Payment.""",
                 st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
                 # Generated File Tree & Code Explorer
-                st.markdown("**Generated Files**")
+                st.markdown("**Generated Files & Manifests**")
                 backend_dir = Path(last_dir) / "backend"
                 models_dir = backend_dir / "app" / "models"
                 apis_dir = backend_dir / "app" / "api"
                 tests_dir = backend_dir / "tests"
+                k8s_dir = backend_dir / "k8s"
+                helm_root = backend_dir / "helm"
 
-                t_models, t_apis, t_tests, t_main, t_docker = st.tabs([
+                t_models, t_apis, t_tests, t_main, t_docker, t_k8s, t_helm = st.tabs([
                     "Models",
                     "Routers",
                     "Tests",
                     "main.py",
                     "Dockerfile",
+                    "Kubernetes",
+                    "Helm",
                 ])
 
                 with t_models:
@@ -558,6 +562,32 @@ A Driver accepts the Ride and completes Payment.""",
                     docker_f = backend_dir / "Dockerfile"
                     if docker_f.exists():
                         st.code(docker_f.read_text(encoding="utf-8"), language="dockerfile")
+
+                with t_k8s:
+                    if k8s_dir.exists():
+                        k_files = sorted([f.name for f in k8s_dir.glob("*.yaml")])
+                        if k_files:
+                            k_choice = st.selectbox("Kubernetes Manifest", k_files, key="sel_k8s", label_visibility="collapsed")
+                            st.code((k8s_dir / k_choice).read_text(encoding="utf-8"), language="yaml")
+                    else:
+                        st.caption("Kubernetes manifests will be generated here upon building.")
+
+                with t_helm:
+                    if helm_root.exists():
+                        chart_dirs = [d for d in helm_root.iterdir() if d.is_dir()]
+                        if chart_dirs:
+                            chart_dir = chart_dirs[0]
+                            helm_files = [f.name for f in chart_dir.glob("*.yaml")]
+                            tpl_dir = chart_dir / "templates"
+                            if tpl_dir.exists():
+                                helm_files += [f"templates/{f.name}" for f in sorted(tpl_dir.glob("*")) if f.is_file()]
+                            h_choice = st.selectbox("Helm Chart File", helm_files, key="sel_helm", label_visibility="collapsed")
+                            target_f = chart_dir / h_choice
+                            if target_f.exists():
+                                lang = "yaml" if h_choice.endswith((".yaml", ".yml")) else "text"
+                                st.code(target_f.read_text(encoding="utf-8"), language=lang)
+                    else:
+                        st.caption("Helm chart files will be generated here upon building.")
 
                 st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
@@ -616,7 +646,7 @@ A Driver accepts the Ride and completes Payment.""",
                 </div>
                 <div class="stage-row">
                     <span class="stage-icon">○</span>
-                    <span class="stage-text">Docker & bundle packaging</span>
+                    <span class="stage-text">Docker, K8s & Helm packaging</span>
                     <span class="stage-desc">Stage 5</span>
                 </div>
                 """, unsafe_allow_html=True)
