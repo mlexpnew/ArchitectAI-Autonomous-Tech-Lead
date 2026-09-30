@@ -10,3 +10,4 @@ rich
 loguru
 tavily-python
 pytest
+streamlit

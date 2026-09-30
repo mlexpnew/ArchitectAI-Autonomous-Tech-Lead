@@ -138,22 +138,25 @@ class Settings(BaseSettings):
 
         provider = self.LLM_PROVIDER.lower().strip()
 
+        def _has_key(key: str | None) -> bool:
+            return bool(key and isinstance(key, str) and key.strip())
+
         # If primary provider has a key, use it
-        if provider == "groq" and self.GROQ_API_KEY.strip():
+        if provider == "groq" and _has_key(self.GROQ_API_KEY):
             return "groq"
-        if provider in ("google", "gemini") and self.GOOGLE_API_KEY.strip():
+        if provider in ("google", "gemini") and _has_key(self.GOOGLE_API_KEY):
             return "gemini"
-        if provider == "openai" and self.OPENAI_API_KEY.strip():
+        if provider == "openai" and _has_key(self.OPENAI_API_KEY):
             return "openai"
         if provider == "ollama":
             return "ollama"
 
         # Fallbacks: check if any other provider has a valid key configured
-        if self.GROQ_API_KEY.strip():
+        if _has_key(self.GROQ_API_KEY):
             return "groq"
-        if self.GOOGLE_API_KEY.strip():
+        if _has_key(self.GOOGLE_API_KEY):
             return "gemini"
-        if self.OPENAI_API_KEY.strip():
+        if _has_key(self.OPENAI_API_KEY):
             return "openai"
 
         # Return configured provider even if key is missing (caller will handle error cleanly)
@@ -165,11 +168,11 @@ class Settings(BaseSettings):
             return True
         provider = self.get_active_provider()
         if provider == "groq":
-            return bool(self.GROQ_API_KEY.strip())
+            return bool(self.GROQ_API_KEY and self.GROQ_API_KEY.strip())
         if provider == "gemini":
-            return bool(self.GOOGLE_API_KEY.strip())
+            return bool(self.GOOGLE_API_KEY and self.GOOGLE_API_KEY.strip())
         if provider == "openai":
-            return bool(self.OPENAI_API_KEY.strip())
+            return bool(self.OPENAI_API_KEY and self.OPENAI_API_KEY.strip())
         if provider == "ollama":
             return True
         return False

@@ -45,7 +45,7 @@ class AICodeGenerator:
             return None
 
         if self.provider == "groq":
-            api_key = settings.GROQ_API_KEY.strip()
+            api_key = (settings.GROQ_API_KEY or "").strip()
             if not api_key:
                 return None
             return OpenAI(
@@ -55,7 +55,7 @@ class AICodeGenerator:
             )
 
         if self.provider in ("google", "gemini"):
-            api_key = settings.GOOGLE_API_KEY.strip()
+            api_key = (settings.GOOGLE_API_KEY or "").strip()
             if not api_key:
                 return None
             return OpenAI(
@@ -65,7 +65,7 @@ class AICodeGenerator:
             )
 
         if self.provider == "openai":
-            api_key = settings.OPENAI_API_KEY.strip()
+            api_key = (settings.OPENAI_API_KEY or "").strip()
             if not api_key:
                 return None
             return OpenAI(

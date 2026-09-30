@@ -54,15 +54,19 @@ def test_settings_mock_mode():
     assert s.has_valid_api_key() is True
 
 
-def test_ai_code_generator_safe_init_without_key():
+def test_ai_code_generator_safe_init_without_key(monkeypatch):
     """Ensure AICodeGenerator does not crash at initialization time when API key is missing."""
+    monkeypatch.setattr("generators.ai.code_generator.settings.GROQ_API_KEY", None)
+    monkeypatch.setattr("config.settings.settings.GROQ_API_KEY", None)
     gen = AICodeGenerator(provider="groq", mock_mode=False)
     assert gen.client is None
     assert gen.provider == "groq"
 
 
-def test_ai_code_generator_raises_explicit_error_without_key():
+def test_ai_code_generator_raises_explicit_error_without_key(monkeypatch):
     """Ensure calling generate() without credentials raises an informative RuntimeError."""
+    monkeypatch.setattr("generators.ai.code_generator.settings.GROQ_API_KEY", None)
+    monkeypatch.setattr("config.settings.settings.GROQ_API_KEY", None)
     gen = AICodeGenerator(provider="groq", mock_mode=False)
     with pytest.raises(RuntimeError) as exc_info:
         gen.generate("Create a model")

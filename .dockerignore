@@ -1,0 +1,40 @@
+# Git
+.git/
+.gitignore
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Local Environment Variables & Secrets
+.env.local
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# Workspace outputs (mounted as volumes instead)
+outputs/
+generated_projects/
+data/chroma_db/
+logs/*.log
+
+# Build & packaging
+dist/
+build/
+*.egg-info/
