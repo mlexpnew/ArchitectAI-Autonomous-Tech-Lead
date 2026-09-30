@@ -4,6 +4,7 @@ Clean, human-first developer dashboard.
 """
 
 import os
+import textwrap
 from pathlib import Path
 import re
 import json
@@ -1536,36 +1537,37 @@ elif navigation == "📁 Due Diligence & Data Room":
                     st.markdown("**Domain Benchmark Results Breakdown:**")
                     res_rows = []
                     for r in b_data.get("results", []):
-                        res_rows.append(f"""
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.82rem;">
-                            <td style="padding: 8px 10px; font-weight: 600;">{r.get('domain')}</td>
-                            <td style="padding: 8px 10px; color: #94A3B8;">{r.get('complexity')}</td>
-                            <td style="padding: 8px 10px; font-family: monospace; font-weight: 700; color: #818CF8;">{r.get('generation_time_seconds', 0):.2f}s</td>
-                            <td style="padding: 8px 10px; font-family: monospace;">{r.get('python_files_count', 0)} files</td>
-                            <td style="padding: 8px 10px; font-family: monospace;">{r.get('lines_of_code', 0):,} LOC</td>
-                            <td style="padding: 8px 10px; color: #10B981; font-weight: 600;">{r.get('test_pass_rate', 100):.0f}% Pass</td>
-                            <td style="padding: 8px 10px; font-family: monospace; color: #10B981;">${r.get('cost_gemini_flash', 0):.4f}</td>
-                        </tr>
-                        """)
+                        res_rows.append(
+                            f'<tr style="border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.82rem;">'
+                            f'<td style="padding: 8px 10px; font-weight: 600;">{r.get("domain")}</td>'
+                            f'<td style="padding: 8px 10px; color: #94A3B8;">{r.get("complexity")}</td>'
+                            f'<td style="padding: 8px 10px; font-family: monospace; font-weight: 700; color: #818CF8;">{r.get("generation_time_seconds", 0):.2f}s</td>'
+                            f'<td style="padding: 8px 10px; font-family: monospace;">{r.get("python_files_count", 0)} files</td>'
+                            f'<td style="padding: 8px 10px; font-family: monospace;">{r.get("lines_of_code", 0):,} LOC</td>'
+                            f'<td style="padding: 8px 10px; color: #10B981; font-weight: 600;">{r.get("test_pass_rate", 100):.0f}% Pass</td>'
+                            f'<td style="padding: 8px 10px; font-family: monospace; color: #10B981;">${r.get("cost_gemini_flash", 0):.4f}</td>'
+                            f'</tr>'
+                        )
 
-                    st.markdown(f"""
-                    <table style="width: 100%; border-collapse: collapse; margin-top: 6px;">
-                        <thead>
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.12); color: #94A3B8; font-size: 0.74rem; text-align: left; text-transform: uppercase;">
-                                <th style="padding: 6px 10px;">Domain Archetype</th>
-                                <th style="padding: 6px 10px;">Complexity</th>
-                                <th style="padding: 6px 10px;">Latency</th>
-                                <th style="padding: 6px 10px;">Volume</th>
-                                <th style="padding: 6px 10px;">Lines of Code</th>
-                                <th style="padding: 6px 10px;">Pytest SLA</th>
-                                <th style="padding: 6px 10px;">Unit Cost</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {"".join(res_rows)}
-                        </tbody>
-                    </table>
-                    """, unsafe_allow_html=True)
+                    bench_table_html = (
+                        '<table style="width: 100%; border-collapse: collapse; margin-top: 6px;">'
+                        '<thead>'
+                        '<tr style="border-bottom: 1px solid rgba(255,255,255,0.12); color: #94A3B8; font-size: 0.74rem; text-align: left; text-transform: uppercase;">'
+                        '<th style="padding: 6px 10px;">Domain Archetype</th>'
+                        '<th style="padding: 6px 10px;">Complexity</th>'
+                        '<th style="padding: 6px 10px;">Latency</th>'
+                        '<th style="padding: 6px 10px;">Volume</th>'
+                        '<th style="padding: 6px 10px;">Lines of Code</th>'
+                        '<th style="padding: 6px 10px;">Pytest SLA</th>'
+                        '<th style="padding: 6px 10px;">Unit Cost</th>'
+                        '</tr>'
+                        '</thead>'
+                        '<tbody>'
+                        + "".join(res_rows)
+                        + '</tbody>'
+                        '</table>'
+                    )
+                    st.markdown(bench_table_html, unsafe_allow_html=True)
                 except Exception as e:
                     st.info(f"Click 'Run Automated Benchmark Suite' to generate initial metrics ({e}).")
 
@@ -1622,34 +1624,35 @@ elif navigation == "📁 Due Diligence & Data Room":
                 dep_table_rows = []
                 for d in a_data.get("dependencies", []):
                     badge = '<span style="color: #10B981; font-weight: 600;">✓ Safe</span>' if d.get("commercial_friendly") else '<span style="color: #EF4444;">Flagged</span>'
-                    dep_table_rows.append(f"""
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.8rem;">
-                        <td style="padding: 6px 10px; font-weight: 600;">{d.get('name')}</td>
-                        <td style="padding: 6px 10px; font-family: monospace; color: #94A3B8;">{d.get('version')}</td>
-                        <td style="padding: 6px 10px; font-weight: 600; color: #F8FAFC;">{d.get('license_type')}</td>
-                        <td style="padding: 6px 10px; color: #94A3B8;">{d.get('category')}</td>
-                        <td style="padding: 6px 10px;">{badge}</td>
-                        <td style="padding: 6px 10px; color: #10B981;">{d.get('copyleft_risk')}</td>
-                    </tr>
-                    """)
+                    dep_table_rows.append(
+                        f'<tr style="border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.8rem;">'
+                        f'<td style="padding: 6px 10px; font-weight: 600;">{d.get("name")}</td>'
+                        f'<td style="padding: 6px 10px; font-family: monospace; color: #94A3B8;">{d.get("version")}</td>'
+                        f'<td style="padding: 6px 10px; font-weight: 600; color: #F8FAFC;">{d.get("license_type")}</td>'
+                        f'<td style="padding: 6px 10px; color: #94A3B8;">{d.get("category")}</td>'
+                        f'<td style="padding: 6px 10px;">{badge}</td>'
+                        f'<td style="padding: 6px 10px; color: #10B981;">{d.get("copyleft_risk")}</td>'
+                        f'</tr>'
+                    )
 
-                st.markdown(f"""
-                <table style="width: 100%; border-collapse: collapse; margin-top: 6px;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.12); color: #94A3B8; font-size: 0.72rem; text-align: left; text-transform: uppercase;">
-                            <th style="padding: 6px 10px;">Component</th>
-                            <th style="padding: 6px 10px;">Version</th>
-                            <th style="padding: 6px 10px;">License</th>
-                            <th style="padding: 6px 10px;">Category</th>
-                            <th style="padding: 6px 10px;">Status</th>
-                            <th style="padding: 6px 10px;">Copyleft Risk</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {"".join(dep_table_rows)}
-                    </tbody>
-                </table>
-                """, unsafe_allow_html=True)
+                sbom_table_html = (
+                    '<table style="width: 100%; border-collapse: collapse; margin-top: 6px;">'
+                    '<thead>'
+                    '<tr style="border-bottom: 1px solid rgba(255,255,255,0.12); color: #94A3B8; font-size: 0.72rem; text-align: left; text-transform: uppercase;">'
+                    '<th style="padding: 6px 10px;">Component</th>'
+                    '<th style="padding: 6px 10px;">Version</th>'
+                    '<th style="padding: 6px 10px;">License</th>'
+                    '<th style="padding: 6px 10px;">Category</th>'
+                    '<th style="padding: 6px 10px;">Status</th>'
+                    '<th style="padding: 6px 10px;">Copyleft Risk</th>'
+                    '</tr>'
+                    '</thead>'
+                    '<tbody>'
+                    + "".join(dep_table_rows)
+                    + '</tbody>'
+                    '</table>'
+                )
+                st.markdown(sbom_table_html, unsafe_allow_html=True)
 
     # Tab 3: Executive Whitepaper
     with t_whitepaper:
@@ -1743,7 +1746,7 @@ elif navigation == "🛡️ Enterprise Security & SOC2":
 
         with st.container(border=True):
             st.markdown('<div class="card-title">Enterprise Security Safeguards & Trust Criteria</div>', unsafe_allow_html=True)
-            st.markdown("""
+            st.markdown(textwrap.dedent("""
             <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
                 <thead>
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.12); color: #94A3B8; font-size: 0.75rem; text-align: left; text-transform: uppercase;">
@@ -1785,7 +1788,7 @@ elif navigation == "🛡️ Enterprise Security & SOC2":
                     </tr>
                 </tbody>
             </table>
-            """, unsafe_allow_html=True)
+            """), unsafe_allow_html=True)
 
     # Tab 2: Interactive Threat & Secret Sandbox
     with t_sandbox:
@@ -1874,36 +1877,37 @@ elif navigation == "🛡️ Enterprise Security & SOC2":
                 status_color = "#10B981" if e.get("status") in ("SUCCESS", "INITIALIZED") else ("#EF4444" if e.get("status") == "BLOCKED" else "#F59E0B")
                 short_hash = f"<code>{e.get('entry_hash', '')[:12]}...</code>"
                 short_prev = f"<code>{e.get('prev_hash', '')[:12]}...</code>"
-                rows.append(f"""
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.8rem;">
-                    <td style="padding: 6px 8px; font-family: monospace; color: #94A3B8;">{e.get('timestamp', '')[11:19]}</td>
-                    <td style="padding: 6px 8px; font-weight: 500;">{e.get('event_type')}</td>
-                    <td style="padding: 6px 8px;"><span style="background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.72rem;">{e.get('actor_role')}</span></td>
-                    <td style="padding: 6px 8px; color: #CBD5E1;">{e.get('action')}</td>
-                    <td style="padding: 6px 8px; font-weight: 600; color: {status_color};">{e.get('status')}</td>
-                    <td style="padding: 6px 8px;">{short_hash}</td>
-                    <td style="padding: 6px 8px; color: #64748B;">{short_prev}</td>
-                </tr>
-                """)
+                rows.append(
+                    f'<tr style="border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.8rem;">'
+                    f'<td style="padding: 6px 8px; font-family: monospace; color: #94A3B8;">{e.get("timestamp", "")[11:19]}</td>'
+                    f'<td style="padding: 6px 8px; font-weight: 500;">{e.get("event_type")}</td>'
+                    f'<td style="padding: 6px 8px;"><span style="background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.72rem;">{e.get("actor_role")}</span></td>'
+                    f'<td style="padding: 6px 8px; color: #CBD5E1;">{e.get("action")}</td>'
+                    f'<td style="padding: 6px 8px; font-weight: 600; color: {status_color};">{e.get("status")}</td>'
+                    f'<td style="padding: 6px 8px;">{short_hash}</td>'
+                    f'<td style="padding: 6px 8px; color: #64748B;">{short_prev}</td>'
+                    f'</tr>'
+                )
 
-            st.markdown(f"""
-            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                <thead>
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.12); color: #94A3B8; font-size: 0.72rem; text-align: left; text-transform: uppercase;">
-                        <th style="padding: 6px 8px;">Time (UTC)</th>
-                        <th style="padding: 6px 8px;">Event Type</th>
-                        <th style="padding: 6px 8px;">Actor Role</th>
-                        <th style="padding: 6px 8px;">Action</th>
-                        <th style="padding: 6px 8px;">Status</th>
-                        <th style="padding: 6px 8px;">Block Hash</th>
-                        <th style="padding: 6px 8px;">Parent Hash</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {"".join(rows)}
-                </tbody>
-            </table>
-            """, unsafe_allow_html=True)
+            ledger_table_html = (
+                '<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">'
+                '<thead>'
+                '<tr style="border-bottom: 1px solid rgba(255,255,255,0.12); color: #94A3B8; font-size: 0.72rem; text-align: left; text-transform: uppercase;">'
+                '<th style="padding: 6px 8px;">Time (UTC)</th>'
+                '<th style="padding: 6px 8px;">Event Type</th>'
+                '<th style="padding: 6px 8px;">Actor Role</th>'
+                '<th style="padding: 6px 8px;">Action</th>'
+                '<th style="padding: 6px 8px;">Status</th>'
+                '<th style="padding: 6px 8px;">Block Hash</th>'
+                '<th style="padding: 6px 8px;">Parent Hash</th>'
+                '</tr>'
+                '</thead>'
+                '<tbody>'
+                + "".join(rows)
+                + '</tbody>'
+                '</table>'
+            )
+            st.markdown(ledger_table_html, unsafe_allow_html=True)
 
     # Tab 4: SOC2 Type II Audit Report
     with t_soc2:
