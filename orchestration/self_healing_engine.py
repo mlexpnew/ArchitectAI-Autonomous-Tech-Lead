@@ -382,57 +382,58 @@ Failure information:
             )
 
             # ---------------------------------------------
-            # Repair successful
+            # Evaluate repair success
             # ---------------------------------------------
 
-            self.repair_engine.commit(
-                repair_file
-            )
+            if new_validation.get("valid"):
+                self.repair_engine.commit(
+                    repair_file
+                )
 
-            history.append(
-                {
-                    "attempt": attempt,
-                    "diagnosis": diagnosis,
-                    "file": repair_file,
-                    "repaired": True,
-                    "validation_passed": True,
+                history.append(
+                    {
+                        "attempt": attempt,
+                        "diagnosis": diagnosis,
+                        "file": repair_file,
+                        "repaired": True,
+                        "validation_passed": True,
+                    }
+                )
+
+                print(
+                    "\n🎉 SELF-HEALING SUCCESSFUL"
+                )
+
+                return {
+                    "healed": True,
+                    "attempts": attempt,
+                    "validation": new_validation,
+                    "history": history,
                 }
-            )
+            else:
+                # ---------------------------------------------
+                # Repair failed → rollback
+                # ---------------------------------------------
 
-            print(
-                "\n🎉 SELF-HEALING SUCCESSFUL"
-            )
+                print(
+                    "\n⚠️ Repair did not solve "
+                    "the failure."
+                )
 
-            return {
-                "healed": True,
-                "attempts": attempt,
-                "validation": new_validation,
-                "history": history,
-            }
+                self.repair_engine.rollback(
+                    repair_file
+                )
 
-            # ---------------------------------------------
-            # Repair failed → rollback
-            # ---------------------------------------------
-
-            print(
-                "\n⚠️ Repair did not solve "
-                "the failure."
-            )
-
-            self.repair_engine.rollback(
-                repair_file
-            )
-
-            history.append(
-                {
-                    "attempt": attempt,
-                    "diagnosis": diagnosis,
-                    "file": repair_file,
-                    "repaired": True,
-                    "validation_passed": False,
-                    "repair_result": repair_result,
-                }
-            )
+                history.append(
+                    {
+                        "attempt": attempt,
+                        "diagnosis": diagnosis,
+                        "file": repair_file,
+                        "repaired": True,
+                        "validation_passed": False,
+                        "repair_result": repair_result,
+                    }
+                )
 
         # -------------------------------------------------
         # Exhausted repair attempts

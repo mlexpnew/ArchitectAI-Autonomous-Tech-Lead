@@ -17,7 +17,7 @@ from pathlib import Path
 from agents.agent_manager import AgentManager
 from generators.backend.backend_pipeline import BackendPipeline
 from orchestration.project_validator import ProjectValidator
-from orchestration.self_healing_engine import SelfHealingEngine
+from self_healing.retry_manager import SelfHealingLoop, SelfHealingEngine
 from generators.project_packaging_generator import (
     ProjectPackagingGenerator,
 )
@@ -105,7 +105,7 @@ class ArchitectPipeline:
         healing_result = None
 
         # =================================================
-        # SELF-HEALING
+        # SELF-HEALING & VALIDATION
         # =================================================
 
         if not validation["valid"]:
@@ -115,15 +115,15 @@ class ArchitectPipeline:
             )
 
             print(
-                "🛠 Starting ArchitectAI self-healing..."
+                "🛠 Starting ArchitectAI Autonomous Self-Healing Loop..."
             )
 
-            healer = SelfHealingEngine(
+            healer = SelfHealingLoop(
                 backend_dir=str(backend_dir),
-                max_attempts=2,
+                max_attempts=3,
             )
 
-            healing_result = healer.heal()
+            healing_result = healer.run()
 
             if not healing_result["healed"]:
 
@@ -134,8 +134,7 @@ class ArchitectPipeline:
                 )
 
                 raise RuntimeError(
-                    "ArchitectAI could not repair "
-                    "the generated backend:\n"
+                    "ArchitectAI self-healing loop exhausted attempts without resolving errors:\n"
                     + "\n".join(errors)
                 )
 
@@ -144,13 +143,21 @@ class ArchitectPipeline:
             ]
 
             print(
-                "\n✅ Self-healing completed successfully"
+                f"\n✅ Self-healing completed successfully in {healing_result.get('attempts', 1)} attempts"
             )
 
         else:
 
+            healing_result = {
+                "healed": True,
+                "clean_run": True,
+                "attempts": 0,
+                "validation": validation,
+                "message": "Project passed validation cleanly without requiring self-healing.",
+            }
+
             print(
-                "\n✅ Backend passed validation"
+                "\n✅ Backend passed validation cleanly (100% green first run)"
             )
             
         # =================================================

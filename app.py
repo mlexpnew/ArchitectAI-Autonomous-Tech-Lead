@@ -28,6 +28,7 @@ from utils.e2e_manager import (
     run_playwright_e2e,
     run_cypress_e2e,
 )
+from self_healing.retry_manager import SelfHealingLoop
 
 # -------------------------------------------------------------
 # Page Configuration
@@ -510,7 +511,15 @@ A Driver accepts the Ride and completes Payment.""",
                 """, unsafe_allow_html=True)
 
                 # Progress Checklist (Done)
-                st.markdown("""
+                self_healing_info = last_result.get("self_healing")
+                if isinstance(self_healing_info, dict) and self_healing_info.get("clean_run"):
+                    healing_tag = "Clean (100% Green)"
+                elif isinstance(self_healing_info, dict) and self_healing_info.get("healed"):
+                    healing_tag = f"Repaired ({self_healing_info.get('attempts', 1)} attempts)"
+                else:
+                    healing_tag = "Active"
+
+                st.markdown(f"""
                 <div class="stage-row done">
                     <span class="stage-icon">✓</span>
                     <span class="stage-text">Domain entities & mapping</span>
@@ -530,6 +539,11 @@ A Driver accepts the Ride and completes Payment.""",
                     <span class="stage-icon">✓</span>
                     <span class="stage-text">Hermetic pytest validation</span>
                     <span class="stage-desc">Passed</span>
+                </div>
+                <div class="stage-row done">
+                    <span class="stage-icon">✓</span>
+                    <span class="stage-text">Autonomous Self-Healing Loop</span>
+                    <span class="stage-desc">{healing_tag}</span>
                 </div>
                 <div class="stage-row done">
                     <span class="stage-icon">✓</span>
@@ -577,11 +591,49 @@ A Driver accepts the Ride and completes Payment.""",
                             st.code((apis_dir / a_choice).read_text(encoding="utf-8"), language="python")
 
                 with t_tests:
-                    if tests_dir.exists():
-                        t_files = [f.name for f in tests_dir.glob("test_*.py")]
-                        if t_files:
-                            t_choice = st.selectbox("Test file", t_files, key="sel_t", label_visibility="collapsed")
-                            st.code((tests_dir / t_choice).read_text(encoding="utf-8"), language="python")
+                    st.markdown("""
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px; color: #F8FAFC;">🧪 Pytest Suite & Autonomous Self-Healing</div>
+                            <div style="font-size: 12px; color: #94A3B8;">Closed-loop validation, AI error reflection, and automatic code recovery</div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    col_t_action1, col_t_action2 = st.columns([2, 1])
+                    with col_t_action1:
+                        if tests_dir.exists():
+                            t_files = [f.name for f in tests_dir.glob("test_*.py")]
+                            if t_files:
+                                t_choice = st.selectbox("Test file", t_files, key="sel_t", label_visibility="collapsed")
+                            else:
+                                t_choice = None
+                        else:
+                            t_choice = None
+                    with col_t_action2:
+                        heal_btn = st.button("🩺 Run Self-Healing Doctor", type="secondary", use_container_width=True, help="Executes ProjectValidator and triggers SelfHealingLoop if any issue is detected")
+
+                    if heal_btn:
+                        with st.spinner("Running autonomous self-healing diagnostics..."):
+                            loop = SelfHealingLoop(backend_dir=str(backend_dir), max_attempts=3)
+                            heal_report = loop.run()
+                            if heal_report.get("clean_run"):
+                                st.success("✓ Zero issues detected! Project is 100% green and verified.")
+                            elif heal_report.get("healed"):
+                                st.success(f"✓ Autonomous Self-Healing Succeeded! Repaired {heal_report.get('healed_file')} in {heal_report.get('attempts')} attempts.")
+                                with st.expander("🛠 Reflection & Patch Details", expanded=True):
+                                    st.markdown(f"**Root Cause**: `{heal_report.get('root_cause')}`")
+                                    st.markdown(f"**Target File**: `{heal_report.get('healed_file')}`")
+                                    for h in heal_report.get("history", []):
+                                        st.caption(f"Attempt {h.get('attempt')}: {h.get('fix_suggestion', 'Patched and verified green.')}")
+                            else:
+                                st.error(f"❌ Self-healing exhausted attempts: {heal_report.get('message')}")
+                                with st.expander("Diagnostic Traceback", expanded=True):
+                                    for err in heal_report.get("validation", {}).get("errors", []):
+                                        st.code(err)
+
+                    if t_choice and (tests_dir / t_choice).exists():
+                        st.code((tests_dir / t_choice).read_text(encoding="utf-8"), language="python")
 
                 with t_main:
                     main_f = backend_dir / "app" / "main.py"
