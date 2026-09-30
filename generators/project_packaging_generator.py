@@ -24,6 +24,7 @@ sqlalchemy
 pydantic
 pytest
 httpx
+alembic
 """
 
         FileWriter.write(
@@ -161,6 +162,314 @@ except Exception:
         except Exception as e:
             print(f"⚠️ Could not generate openapi.json: {e}")
 
+    def generate_alembic_setup(self, project_name: str, blueprint=None):
+        alembic_dir = self.backend_dir / "alembic"
+        versions_dir = alembic_dir / "versions"
+
+        # 1. alembic.ini
+        ini_content = """# Alembic Configuration for ArchitectAI Backend
+
+[alembic]
+script_location = alembic
+prepend_sys_path = .
+version_locations = %(here)s/alembic/versions
+
+[loggers]
+keys = root,sqlalchemy,alembic
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = WARN
+handlers = console
+qualname =
+
+[logger_sqlalchemy]
+level = WARN
+handlers =
+qualname = sqlalchemy.engine
+
+[logger_alembic]
+level = INFO
+handlers =
+qualname = alembic
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(levelname)-5.5s [%(name)s] %(message)s
+datefmt = %H:%M:%S
+"""
+        FileWriter.write(self.backend_dir / "alembic.ini", ini_content)
+
+        # 2. alembic/env.py
+        env_py_content = """import os
+import sys
+from logging.config import fileConfig
+
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
+
+from alembic import context
+
+# Ensure application package is discoverable
+sys.path.insert(0, os.path.abspath("."))
+
+from app.database import Base
+
+try:
+    from app.config import settings
+    db_url = settings.DATABASE_URL
+except Exception:
+    db_url = os.getenv("DATABASE_URL", "sqlite:///./app.db")
+
+# Import all models to ensure registration with Base.metadata
+try:
+    import app.models  # noqa: F401
+except Exception:
+    pass
+
+config = context.config
+
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
+
+config.set_main_option("sqlalchemy.url", db_url)
+
+target_metadata = Base.metadata
+
+
+def run_migrations_offline() -> None:
+    url = config.get_main_option("sqlalchemy.url")
+    context.configure(
+        url=url,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        dialect_opts={"paramstyle": "named"},
+    )
+
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+def run_migrations_online() -> None:
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section, {}),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
+
+    with connectable.connect() as connection:
+        context.configure(
+            connection=connection, target_metadata=target_metadata
+        )
+
+        with context.begin_transaction():
+            context.run_migrations()
+
+
+if context.is_offline_mode():
+    run_migrations_offline()
+else:
+    run_migrations_online()
+"""
+        FileWriter.write(alembic_dir / "env.py", env_py_content)
+
+        # 3. alembic/script.py.mako
+        mako_content = """\"\"\"${message}
+
+Revision ID: ${up_revision}
+Revises: ${down_revision | comma,n}
+Create Date: ${create_date}
+
+\"\"\"
+from typing import Sequence, Union
+
+from alembic import op
+import sqlalchemy as sa
+${imports if imports else ""}
+
+# revision identifiers, used by Alembic.
+revision: str = ${repr(up_revision)}
+down_revision: Union[str, None] = ${repr(down_revision)}
+branch_labels: Union[str, Sequence[str], None] = ${repr(branch_labels)}
+depends_on: Union[str, Sequence[str], None] = ${repr(depends_on)}
+
+
+def upgrade() -> None:
+    ${upgrades if upgrades else "pass"}
+
+
+def downgrade() -> None:
+    ${downgrades if downgrades else "pass"}
+"""
+        FileWriter.write(alembic_dir / "script.py.mako", mako_content)
+
+        # 4. alembic/versions/001_initial_schema.py
+        table_creates = []
+        table_drops = []
+        entities = getattr(blueprint, "entities", []) if blueprint else []
+
+        TYPE_MAP = {
+            "integer": "sa.Integer()",
+            "string": "sa.String()",
+            "float": "sa.Float()",
+            "boolean": "sa.Boolean()",
+            "date": "sa.Date()",
+            "time": "sa.Time()",
+        }
+
+        for entity in entities:
+            t_name = f"{entity.name.lower()}s"
+            cols = ["            sa.Column('id', sa.Integer(), nullable=False, primary_key=True)"]
+            for field in getattr(entity, "fields", []):
+                if field.name.lower() == "id":
+                    continue
+                c_type = TYPE_MAP.get(str(field.type).lower(), "sa.String()")
+                cols.append(f"            sa.Column('{field.name}', {c_type}, nullable=True)")
+            cols_str = ",\n".join(cols)
+            table_creates.append(f"""    if '{t_name}' not in existing_tables:
+        op.create_table(
+            '{t_name}',
+{cols_str}
+        )""")
+            table_drops.append(f"""    if '{t_name}' in existing_tables:
+        op.drop_table('{t_name}')""")
+
+        table_init = "    conn = op.get_bind()\n    inspector = sa.inspect(conn)\n    existing_tables = set(inspector.get_table_names())"
+        upgrade_body = (table_init + "\n" + "\n".join(table_creates)) if table_creates else "    pass"
+        downgrade_body = (table_init + "\n" + "\n".join(reversed(table_drops))) if table_drops else "    pass"
+
+        initial_migration_content = f'''"""001_initial_schema
+
+Revision ID: 001_initial
+Revises: 
+Create Date: 2026-09-30 00:00:00.000000
+
+"""
+from typing import Sequence, Union
+
+from alembic import op
+import sqlalchemy as sa
+
+revision: str = '001_initial'
+down_revision: Union[str, None] = None
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+
+def upgrade() -> None:
+{upgrade_body}
+
+
+def downgrade() -> None:
+{downgrade_body}
+'''
+        FileWriter.write(versions_dir / "001_initial_schema.py", initial_migration_content)
+        print("✅ Generated Alembic migration setup (alembic.ini, env.py, script.py.mako, 001_initial_schema.py)")
+
+    def generate_database_seeder(self, project_name: str, blueprint=None):
+        entities = getattr(blueprint, "entities", []) if blueprint else []
+
+        seed_blocks = []
+        for entity in entities:
+            e_name = entity.name
+            fields = getattr(entity, "fields", [])
+            records = []
+            for row_idx in (1, 2, 3):
+                row_data = {}
+                for field in fields:
+                    f_name = field.name
+                    if f_name.lower() == "id":
+                        continue
+                    f_type = str(field.type).lower()
+                    if f_type == "integer":
+                        row_data[f_name] = row_idx * 10
+                    elif f_type == "float":
+                        row_data[f_name] = round(row_idx * 29.5, 2)
+                    elif f_type == "boolean":
+                        row_data[f_name] = (row_idx % 2 == 1)
+                    elif f_type == "date":
+                        row_data[f_name] = f"2026-09-{row_idx:02d}"
+                    elif "email" in f_name.lower():
+                        row_data[f_name] = f"{e_name.lower()}{row_idx}@example.com"
+                    elif "status" in f_name.lower():
+                        row_data[f_name] = "ACTIVE" if row_idx == 1 else ("PENDING" if row_idx == 2 else "COMPLETED")
+                    elif any(k in f_name.lower() for k in ("name", "title", "label")):
+                        row_data[f_name] = f"{e_name} #{row_idx}"
+                    elif f_name.endswith("_id"):
+                        row_data[f_name] = 1
+                    else:
+                        row_data[f_name] = f"Sample {f_name.replace('_', ' ').title()} {row_idx}"
+                records.append(row_data)
+
+            records_repr = json.dumps(records, indent=12)
+            seed_blocks.append(f"""
+        # Seed {e_name}
+        existing_{e_name.lower()} = db.query(models.{e_name}).first()
+        if not existing_{e_name.lower()}:
+            items_{e_name.lower()} = {records_repr}
+            for item in items_{e_name.lower()}:
+                db.add(models.{e_name}(**item))
+            db.commit()
+            summary["{e_name}"] = len(items_{e_name.lower()})
+            print(f"  ✓ Seeded {{len(items_{e_name.lower()})}} {e_name} records")
+        else:
+            print(f"  ℹ {e_name} already seeded")
+""")
+
+        seed_body = "".join(seed_blocks) if seed_blocks else "        pass"
+
+        seed_py_content = f'''"""
+ArchitectAI Synthetic Mock Data Seeder
+Populates the database with realistic demo records for {project_name}.
+"""
+
+import sys
+import os
+import json
+from pathlib import Path
+
+# Ensure application package is discoverable
+sys.path.insert(0, os.path.abspath("."))
+
+from app.database import SessionLocal, Base, engine
+import app.models as models
+
+
+def seed():
+    print("🌱 Seeding database with demo records...")
+    Base.metadata.create_all(bind=engine)
+
+    db = SessionLocal()
+    summary = {{}}
+    try:
+{seed_body}
+        total = sum(summary.values())
+        print(f"✨ Seeding complete! Added {{total}} total records.")
+        return summary
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Error seeding database: {{e}}")
+        raise e
+    finally:
+        db.close()
+
+
+if __name__ == "__main__":
+    seed()
+'''
+        FileWriter.write(self.backend_dir / "seed.py", seed_py_content)
+        print("✅ Generated database seeder (seed.py)")
+
     def generate_readme(
         self,
         project_name: str,
@@ -251,9 +560,30 @@ Upgrade chart:
 
     helm upgrade {self.sanitize_k8s_name(project_name)} ./helm/{self.sanitize_k8s_name(project_name)}
 
+## Database Migrations (Alembic)
+
+Apply schema migrations:
+
+    alembic upgrade head
+
+Create a new migration revision:
+
+    alembic revision --autogenerate -m "Add new column"
+
+## Seed Sample Data
+
+Populate the database with realistic demo records:
+
+    python seed.py
+
 ## Architecture
 
     backend/
+    ├── alembic/
+    │   ├── versions/
+    │   │   └── 001_initial_schema.py
+    │   ├── env.py
+    │   └── script.py.mako
     ├── app/
     │   ├── api/
     │   ├── models/
@@ -263,18 +593,11 @@ Upgrade chart:
     │   ├── database.py
     │   └── main.py
     ├── k8s/
-    │   ├── deployment.yaml
-    │   ├── service.yaml
-    │   ├── configmap.yaml
-    │   ├── ingress.yaml
-    │   ├── hpa.yaml
-    │   └── kustomization.yaml
     ├── helm/
-    │   └── {self.sanitize_k8s_name(project_name)}/
-    │       ├── Chart.yaml
-    │       ├── values.yaml
-    │       └── templates/
-    └── tests/
+    ├── tests/
+    ├── alembic.ini
+    ├── openapi.json
+    └── seed.py
 
 ## Generated By
 
@@ -825,6 +1148,14 @@ spec:
             blueprint=blueprint,
         )
         self.generate_openapi_spec()
+        self.generate_alembic_setup(
+            project_name=project_name,
+            blueprint=blueprint,
+        )
+        self.generate_database_seeder(
+            project_name=project_name,
+            blueprint=blueprint,
+        )
 
         self.generate_readme(
             project_name=project_name,

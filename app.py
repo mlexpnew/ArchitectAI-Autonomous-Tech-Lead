@@ -19,6 +19,10 @@ from utils.openapi_inspector import (
     execute_test_request,
     render_swagger_ui_html,
 )
+from utils.database_manager import (
+    apply_migrations,
+    seed_database,
+)
 
 # -------------------------------------------------------------
 # Page Configuration
@@ -530,7 +534,7 @@ A Driver accepts the Ride and completes Payment.""",
                 k8s_dir = backend_dir / "k8s"
                 helm_root = backend_dir / "helm"
 
-                t_models, t_apis, t_tests, t_main, t_docker, t_k8s, t_helm, t_tester = st.tabs([
+                t_models, t_apis, t_tests, t_main, t_docker, t_k8s, t_helm, t_db, t_tester = st.tabs([
                     "Models",
                     "Routers",
                     "Tests",
@@ -538,6 +542,7 @@ A Driver accepts the Ride and completes Payment.""",
                     "Dockerfile",
                     "Kubernetes",
                     "Helm",
+                    "Database & Seed",
                     "API Tester & Docs",
                 ])
 
@@ -597,6 +602,66 @@ A Driver accepts the Ride and completes Payment.""",
                                 st.code(target_f.read_text(encoding="utf-8"), language=lang)
                     else:
                         st.caption("Helm chart files will be generated here upon building.")
+
+                with t_db:
+                    st.markdown("**Database Migrations & Data Seeding**")
+                    st.caption("Manage schema revisions via Alembic and populate synthetic demo records.")
+
+                    col_op1, col_op2 = st.columns(2)
+                    with col_op1:
+                        if st.button("Apply Alembic Migrations", use_container_width=True, help="Executes 'alembic upgrade head' in the generated project"):
+                            with st.spinner("Applying migrations..."):
+                                mig_res = apply_migrations(backend_dir)
+                                if mig_res["success"]:
+                                    st.success(f"✓ Migrations applied ({mig_res['latency_ms']} ms)")
+                                    if mig_res["stdout"]:
+                                        st.code(mig_res["stdout"], language="text")
+                                else:
+                                    st.error(f"Migration error: {mig_res['stderr'] or mig_res['stdout']}")
+
+                    with col_op2:
+                        if st.button("🌱 Seed Sample Data", type="primary", use_container_width=True, help="Populates the database with realistic demo records"):
+                            with st.spinner("Seeding database records..."):
+                                seed_res = seed_database(backend_dir)
+                                if seed_res["success"]:
+                                    summary = seed_res.get("summary", {})
+                                    total_seeded = sum(summary.values()) if summary else 0
+                                    st.success(f"✓ Seeded {total_seeded} records across {len(summary)} entities ({seed_res['latency_ms']} ms)")
+                                    if summary:
+                                        cols_s = st.columns(min(len(summary), 4))
+                                        for idx, (ent_name, count) in enumerate(summary.items()):
+                                            with cols_s[idx % len(cols_s)]:
+                                                st.metric(label=ent_name, value=f"{count} rows")
+                                else:
+                                    st.error(f"Seeding error: {seed_res['stderr'] or seed_res['stdout']}")
+
+                    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+                    st.markdown("**Migration & Seed Files**")
+
+                    db_files = []
+                    alembic_ini_f = backend_dir / "alembic.ini"
+                    if alembic_ini_f.exists():
+                        db_files.append("alembic.ini")
+                    alembic_env_f = backend_dir / "alembic" / "env.py"
+                    if alembic_env_f.exists():
+                        db_files.append("alembic/env.py")
+                    seed_f = backend_dir / "seed.py"
+                    if seed_f.exists():
+                        db_files.append("seed.py")
+
+                    versions_dir = backend_dir / "alembic" / "versions"
+                    if versions_dir.exists():
+                        for vf in sorted(versions_dir.glob("*.py")):
+                            db_files.append(f"alembic/versions/{vf.name}")
+
+                    if db_files:
+                        db_choice = st.selectbox("Database file", db_files, key="sel_db_files", label_visibility="collapsed")
+                        target_db_f = backend_dir / db_choice
+                        if target_db_f.exists():
+                            f_lang = "ini" if db_choice.endswith(".ini") else "python"
+                            st.code(target_db_f.read_text(encoding="utf-8"), language=f_lang)
+                    else:
+                        st.caption("Alembic and seed files will appear here once built.")
 
                 with t_tester:
                     spec = extract_openapi_spec(backend_dir)
