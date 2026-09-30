@@ -29,6 +29,7 @@ from utils.e2e_manager import (
     run_cypress_e2e,
 )
 from self_healing.retry_manager import SelfHealingLoop
+from utils.vcs_manager import VCSManager
 
 # -------------------------------------------------------------
 # Page Configuration
@@ -1058,6 +1059,80 @@ A Driver accepts the Ride and completes Payment.""",
                             mime="application/json",
                             use_container_width=True,
                         )
+
+                # One-Click Remote VCS & Pull Request Integration
+                st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+                with st.container(border=True):
+                    st.markdown("""
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px; color: #F8FAFC;">🚀 One-Click Remote VCS & Pull Request Integration</div>
+                            <div style="font-size: 12px; color: #94A3B8;">Push scaffolded codebase to GitHub / GitLab, stage semantic commits, and open an enterprise PR</div>
+                        </div>
+                        <span style="background: rgba(34, 197, 94, 0.12); color: #4ADE80; font-size: 11px; padding: 3px 8px; border-radius: 9999px; border: 1px solid rgba(34, 197, 94, 0.25);">Ready</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    col_vcs1, col_vcs2, col_vcs3 = st.columns([1, 1.5, 1.5])
+                    with col_vcs1:
+                        vcs_provider = st.selectbox("VCS Provider", ["GitHub", "GitLab"], index=0, key="sel_vcs_prov")
+                    with col_vcs2:
+                        default_repo_name = f"{last_project.lower().replace('_', '-')}-api"
+                        repo_input = st.text_input("Repository Name", value=default_repo_name, key="input_repo_name")
+                    with col_vcs3:
+                        branch_input = st.text_input("Feature Branch", value="feat/architectai-autonomous-scaffold", key="input_branch_name")
+
+                    col_auth1, col_auth2 = st.columns([2, 1])
+                    with col_auth1:
+                        env_token = os.environ.get("GITHUB_TOKEN", "")
+                        token_input = st.text_input(
+                            f"{vcs_provider} Personal Access Token",
+                            value=env_token,
+                            type="password",
+                            help="Optional. Leave blank to run in instant Sandbox / Demo Simulation mode.",
+                            key="input_vcs_token",
+                        )
+                    with col_auth2:
+                        st.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
+                        is_sim = not bool(token_input.strip())
+                        btn_label = "🚀 Create Pull Request (Sandbox)" if is_sim else "🚀 Push to GitHub & Open PR"
+                        pr_btn = st.button(btn_label, type="primary", use_container_width=True)
+
+                    if pr_btn:
+                        with st.spinner(f"Connecting to {vcs_provider} and creating Pull Request..."):
+                            vcs = VCSManager(project_dir=Path(last_dir))
+                            pr_result = vcs.push_and_create_github_pr(
+                                token=token_input.strip(),
+                                project_name=last_project,
+                                repo_name=repo_input,
+                                branch_name=branch_input,
+                                simulation_mode=is_sim,
+                            )
+
+                            if pr_result.get("success"):
+                                st.success(f"{pr_result.get('message')}")
+                                col_p1, col_p2, col_p3 = st.columns(3)
+                                with col_p1:
+                                    st.metric("Pull Request", f"#{pr_result.get('pr_number', 1)}")
+                                with col_p2:
+                                    st.metric("Target Branch", pr_result.get("head_branch"))
+                                with col_p3:
+                                    st.metric("Commit SHA", pr_result.get("commit_sha", "HEAD"))
+
+                                st.markdown(f"""
+                                <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; border-radius: 8px; padding: 12px 16px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div style="font-size: 13px; font-weight: 600; color: #F8FAFC;">{pr_result.get('pr_title')}</div>
+                                        <div style="font-size: 12px; color: #94A3B8;">Repository: <code>{pr_result.get('repo_full_name')}</code></div>
+                                    </div>
+                                    <a href="{pr_result.get('pr_url')}" target="_blank" style="background: #3B82F6; color: white; padding: 6px 14px; border-radius: 6px; font-weight: 500; font-size: 12px; text-decoration: none; display: inline-block;">Open Pull Request ↗</a>
+                                </div>
+                                """, unsafe_allow_html=True)
+
+                                with st.expander("📄 Review Generated Enterprise PR Description", expanded=False):
+                                    st.markdown(pr_result.get("pr_body"))
+                            else:
+                                st.error(f"Failed to create Pull Request: {pr_result.get('error')}")
         else:
             # Quiet Ready State before build
             with st.container(border=True):
