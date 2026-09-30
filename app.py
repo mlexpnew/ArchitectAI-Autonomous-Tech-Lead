@@ -58,7 +58,18 @@ with st.sidebar:
     has_key = settings.has_valid_api_key()
 
     st.write(f"**Provider:** `{active_provider.upper()}`")
-    st.write(f"**Active Model:** `{settings.get_active_model()}`")
+
+    if active_provider == "groq":
+        groq_models = ["qwen/qwen3.8-27b", "openai/gpt-oss-120b", "openai/gpt-oss-20b", "allam-2-7b"]
+        current_model = settings.get_active_model()
+        default_idx = groq_models.index(current_model) if current_model in groq_models else 0
+        selected_model = st.selectbox("Active Model", groq_models, index=default_idx)
+        if selected_model != settings.MODEL_NAME:
+            settings.MODEL_NAME = selected_model
+            settings.GROQ_MODEL = selected_model
+            st.rerun()
+    else:
+        st.write(f"**Active Model:** `{settings.get_active_model()}`")
 
     if has_key:
         st.success("✅ Credentials Configured")
@@ -182,7 +193,12 @@ Each BorrowRecord tracks the borrowed date and returned status.""",
                             )
 
                 except Exception as exc:
-                    st.error(f"Generation Error: {exc}")
+                    err_str = str(exc)
+                    st.error(f"Generation Error: {err_str}")
+                    if "404" in err_str or "does not exist" in err_str:
+                        st.info("💡 **Model Error**: The selected model may not be supported by your API key. Try switching the Active Model to `qwen/qwen3.8-27b` in the sidebar or toggle 'Offline / Mock Mode'.")
+                    elif "rate limit" in err_str or "429" in err_str:
+                        st.info("💡 **Rate Limit Exceeded**: Wait 30 seconds before retrying or toggle 'Offline / Mock Mode'.")
 
 # -------------------------------------------------------------
 # TAB 2: System Design Studio

@@ -32,8 +32,8 @@ class Settings(BaseSettings):
     # Groq Configuration
     # ==========================================================
     GROQ_API_KEY: str = ""
-
-    MODEL_NAME: str = "llama-3.3-70b-versatile"
+    GROQ_MODEL: str = "qwen/qwen3.8-27b"
+    MODEL_NAME: str = "qwen/qwen3.8-27b"
 
     # ==========================================================
     # Gemini Configuration (Optional)
@@ -181,7 +181,7 @@ class Settings(BaseSettings):
         """Returns the model string for the active provider."""
         provider = self.get_active_provider()
         if provider == "groq":
-            return self.MODEL_NAME
+            return self.GROQ_MODEL or self.MODEL_NAME
         if provider == "gemini":
             return self.GEMINI_MODEL
         if provider == "openai":
