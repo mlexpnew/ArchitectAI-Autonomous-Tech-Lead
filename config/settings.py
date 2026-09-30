@@ -15,6 +15,22 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 for _dir in ["outputs", "logs", "data"]:
     Path(_dir).mkdir(parents=True, exist_ok=True)
 
+# Python 3.14+ Compatibility Patch for ChromaDB / Pydantic v1
+try:
+    import pydantic.v1.fields as _pv1_fields
+    _orig_set_default_and_type = _pv1_fields.ModelField._set_default_and_type
+
+    def _safe_set_default_and_type(self):
+        if getattr(self, "type_", None) is _pv1_fields.Undefined:
+            self.type_ = object
+            self.outer_type_ = object
+            self.annotation = object
+        return _orig_set_default_and_type(self)
+
+    _pv1_fields.ModelField._set_default_and_type = _safe_set_default_and_type
+except Exception:
+    pass
+
 # Sync Streamlit Cloud secrets into environment if running on Streamlit Community Cloud
 try:
     import streamlit as _st
