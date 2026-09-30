@@ -31,6 +31,6 @@ EXPOSE 8501 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD curl -f http://localhost:8501/_stcore/health || exit 1
 
-# Launch the ArchitectAI Web Platform
-CMD ["python3", "-m", "streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+# Launch both FastAPI API (8000) and Streamlit UI (8501)
+CMD ["bash", "scripts/start_platform.sh"]
 
