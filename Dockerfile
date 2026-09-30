@@ -21,6 +21,7 @@ COPY . .
 RUN mkdir -p /app/outputs /app/logs /app/data
 
 ENV PATH="/usr/local/bin:/usr/bin:/bin:/root/.local/bin:$PATH"
+ENV PYTHONPATH="/app"
 ENV PYTHONUNBUFFERED=1
 
 # Expose Streamlit dashboard (8501) and API (8000)
