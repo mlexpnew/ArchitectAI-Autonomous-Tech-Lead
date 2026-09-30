@@ -105,6 +105,11 @@ class AICodeGenerator:
         """
         # If prompt expects a JSON list (e.g. entity extractor or task planner)
         if "JSON" in prompt.upper() or "JSON ARRAY" in prompt.upper():
+            if "DATABASE ENTITIES" in prompt.upper() or "ENTITIES" in prompt.upper() or '"ENTITY"' in prompt.upper() or "ENTITY:" in prompt.upper() or "EXTRACT" in prompt.upper():
+                return json.dumps([
+                    {"entity": "User", "fields": ["id : integer", "email : string"]},
+                    {"entity": "Order", "fields": ["id : integer", "user_id : integer"]},
+                ])
             if "TASK" in prompt.upper() or "AGENT" in prompt.upper():
                 return json.dumps([
                     {
@@ -121,8 +126,8 @@ class AICodeGenerator:
                     },
                 ])
             return json.dumps([
-                {"entity": "User", "fields": [{"name": "id", "type": "int"}, {"name": "email", "type": "str"}]},
-                {"entity": "Order", "fields": [{"name": "id", "type": "int"}, {"name": "user_id", "type": "int"}]},
+                {"entity": "User", "fields": ["id : integer", "email : string"]},
+                {"entity": "Order", "fields": ["id : integer", "user_id : integer"]},
             ])
 
         # Default mock code response

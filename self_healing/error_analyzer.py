@@ -38,6 +38,11 @@ class ErrorAnalyzer:
         if compile_matches:
             return compile_matches[0]
 
+        # Look for general references to app/*.py files
+        app_file_matches = re.findall(r'(?:in\s+|at\s+)?(app/[a-zA-Z0-9_/]+\.py)', failure_context)
+        if app_file_matches:
+            return app_file_matches[0]
+
         return None
 
     def analyze(

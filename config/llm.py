@@ -68,6 +68,13 @@ def _init_llm(provider_override: str | None = None, model_override: str | None =
     """
     provider = provider_override or settings.get_active_provider()
 
+    if provider == "mock" or settings.MOCK_LLM:
+        return LLM(
+            model="openai/gpt-4o-mini",
+            api_key="mock_key",
+            temperature=settings.MODEL_TEMPERATURE,
+        )
+
     if provider == "groq":
         model_name = model_override or settings.MODEL_NAME
         return LLM(
@@ -111,8 +118,12 @@ def _init_llm(provider_override: str | None = None, model_override: str | None =
             temperature=settings.MODEL_TEMPERATURE,
         )
 
+    active_model = settings.get_active_model()
+    if "/" not in active_model or not any(active_model.startswith(p + "/") for p in ("openai", "anthropic", "azure", "gemini", "google", "ollama")):
+        active_model = f"openai/{active_model}"
+
     return LLM(
-        model=settings.get_active_model(),
+        model=active_model,
         temperature=settings.MODEL_TEMPERATURE,
     )
 

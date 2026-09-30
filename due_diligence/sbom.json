@@ -1,0 +1,161 @@
+{
+    "bomFormat": "CycloneDX-compatible",
+    "specVersion": "1.5",
+    "serialNumber": "urn:uuid:architectai-due-diligence-sbom-2026",
+    "version": 1,
+    "components": [
+        {
+            "type": "library",
+            "name": "crewai",
+            "version": "1.15.23",
+            "purl": "pkg:pypi/crewai@1.15.23",
+            "license": "MIT",
+            "commercial_safe": true,
+            "repository": "Homepage, https://crewai.com"
+        },
+        {
+            "type": "library",
+            "name": "groq",
+            "version": "1.7.0",
+            "purl": "pkg:pypi/groq@1.7.0",
+            "license": "Apache-2.0",
+            "commercial_safe": true,
+            "repository": "Homepage, https://github.com/groq/groq-python"
+        },
+        {
+            "type": "library",
+            "name": "openai",
+            "version": "2.54.0",
+            "purl": "pkg:pypi/openai@2.54.0",
+            "license": "Apache-2.0",
+            "commercial_safe": true,
+            "repository": "Homepage, https://github.com/openai/openai-python"
+        },
+        {
+            "type": "library",
+            "name": "anthropic",
+            "version": "1.9.0",
+            "purl": "pkg:pypi/anthropic@1.9.0",
+            "license": "MIT",
+            "commercial_safe": true,
+            "repository": "Homepage, https://github.com/anthropics/anthropic-sdk-python"
+        },
+        {
+            "type": "library",
+            "name": "python-dotenv",
+            "version": "1.2.3",
+            "purl": "pkg:pypi/python-dotenv@1.2.3",
+            "license": "BSD-3-Clause",
+            "commercial_safe": true,
+            "repository": "Source, https://github.com/theskumar/python-dotenv"
+        },
+        {
+            "type": "library",
+            "name": "pydantic",
+            "version": "2.12.5",
+            "purl": "pkg:pypi/pydantic@2.12.5",
+            "license": "MIT",
+            "commercial_safe": true,
+            "repository": "Homepage, https://github.com/pydantic/pydantic"
+        },
+        {
+            "type": "library",
+            "name": "pydantic-settings",
+            "version": "2.15.0",
+            "purl": "pkg:pypi/pydantic-settings@2.15.0",
+            "license": "MIT",
+            "commercial_safe": true,
+            "repository": "Homepage, https://github.com/pydantic/pydantic-settings"
+        },
+        {
+            "type": "library",
+            "name": "fastapi",
+            "version": "0.142.1",
+            "purl": "pkg:pypi/fastapi@0.142.1",
+            "license": "MIT",
+            "commercial_safe": true,
+            "repository": "Homepage, https://github.com/fastapi/fastapi"
+        },
+        {
+            "type": "library",
+            "name": "uvicorn",
+            "version": "0.54.0",
+            "purl": "pkg:pypi/uvicorn@0.54.0",
+            "license": "BSD-3-Clause",
+            "commercial_safe": true,
+            "repository": "Changelog, https://uvicorn.dev/release-notes"
+        },
+        {
+            "type": "library",
+            "name": "rich",
+            "version": "14.3.4",
+            "purl": "pkg:pypi/rich@14.3.4",
+            "license": "MIT",
+            "commercial_safe": true,
+            "repository": "Documentation, https://rich.readthedocs.io/en/latest/"
+        },
+        {
+            "type": "library",
+            "name": "loguru",
+            "version": "0.7.3",
+            "purl": "pkg:pypi/loguru@0.7.3",
+            "license": "MIT",
+            "commercial_safe": true,
+            "repository": "Changelog, https://github.com/Delgan/loguru/blob/master/CHANGELOG.rst"
+        },
+        {
+            "type": "library",
+            "name": "tavily-python",
+            "version": "0.8.4",
+            "purl": "pkg:pypi/tavily-python@0.8.4",
+            "license": "MIT",
+            "commercial_safe": true,
+            "repository": "https://github.com/tavily-ai/tavily-python"
+        },
+        {
+            "type": "library",
+            "name": "pytest",
+            "version": "9.1.1",
+            "purl": "pkg:pypi/pytest@9.1.1",
+            "license": "MIT",
+            "commercial_safe": true,
+            "repository": "Changelog, https://docs.pytest.org/en/stable/changelog.html"
+        },
+        {
+            "type": "library",
+            "name": "streamlit",
+            "version": "1.64.0",
+            "purl": "pkg:pypi/streamlit@1.64.0",
+            "license": "Apache-2.0",
+            "commercial_safe": true,
+            "repository": "Homepage, https://streamlit.io"
+        },
+        {
+            "type": "library",
+            "name": "sqlalchemy",
+            "version": "2.1.1",
+            "purl": "pkg:pypi/sqlalchemy@2.1.1",
+            "license": "MIT",
+            "commercial_safe": true,
+            "repository": "Homepage, https://www.sqlalchemy.org"
+        },
+        {
+            "type": "library",
+            "name": "httpx",
+            "version": "0.28.1",
+            "purl": "pkg:pypi/httpx@0.28.1",
+            "license": "BSD-3-Clause",
+            "commercial_safe": true,
+            "repository": "Changelog, https://github.com/encode/httpx/blob/master/CHANGELOG.md"
+        },
+        {
+            "type": "library",
+            "name": "alembic",
+            "version": "1.20.0",
+            "purl": "pkg:pypi/alembic@1.20.0",
+            "license": "MIT",
+            "commercial_safe": true,
+            "repository": "Homepage, https://alembic.sqlalchemy.org"
+        }
+    ]
+}

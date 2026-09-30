@@ -93,8 +93,9 @@ Requirements:
 
         for item in data:
 
+            entity_name = item.get("entity") or item.get("name") or "Entity"
             entity = Entity(
-                name=item["entity"]
+                name=entity_name
             )
 
             for field in item["fields"]:

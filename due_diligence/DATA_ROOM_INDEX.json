@@ -1,0 +1,39 @@
+{
+    "title": "ArchitectAI \u2014 M&A Due Diligence & Technical Audit Data Room",
+    "version": "1.2 Enterprise",
+    "proprietary_license": "MIT (100% Commercial Clean)",
+    "compliance_clearance": "AAA Approved (Zero Copyleft Contamination)",
+    "target_system": "ArchitectAI Autonomous Tech Lead",
+    "contents": [
+        {
+            "file": "EXECUTIVE_SYSTEM_ARCHITECTURE_WHITEPAPER.md",
+            "description": "Executive Whitepaper for M&A Corporate Dev & CTOs",
+            "category": "Architecture & Investment Thesis"
+        },
+        {
+            "file": "LICENSE_COMPLIANCE_AUDIT.md",
+            "description": "Software Composition Analysis (SCA) & IP Clearance Audit",
+            "category": "Legal & Intellectual Property"
+        },
+        {
+            "file": "sbom.json",
+            "description": "CycloneDX-aligned Software Bill of Materials (SBOM)",
+            "category": "Legal & Intellectual Property"
+        },
+        {
+            "file": "BENCHMARK_REPORT.md",
+            "description": "Automated Multi-Domain Quality & Latency Benchmark Report",
+            "category": "Performance & Engineering SLAs"
+        },
+        {
+            "file": "benchmark_report.json",
+            "description": "Raw JSON metrics, p50/p95 latency, and token economics",
+            "category": "Performance & Engineering SLAs"
+        },
+        {
+            "file": "license_audit_report.json",
+            "description": "Raw JSON dependency catalog with risk ratings",
+            "category": "Legal & Intellectual Property"
+        }
+    ]
+}
