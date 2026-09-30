@@ -98,15 +98,23 @@ Requirements:
             )
 
             for field in item["fields"]:
-
-                name, datatype = field.split(":")
+                if isinstance(field, dict):
+                    name = field.get("name") or field.get("field") or list(field.keys())[0]
+                    datatype = field.get("type") or field.get("datatype") or list(field.values())[0]
+                elif isinstance(field, str):
+                    if ":" in field:
+                        name, datatype = field.split(":", 1)
+                    else:
+                        name, datatype = field, "string"
+                else:
+                    name, datatype = str(field), "string"
 
                 entity.fields.append(
                     EntityField(
-                        name=name.strip(),
-                        type=datatype.strip()
+                        name=str(name).strip(),
+                        type=str(datatype).strip()
                     )
-                    )
+                )
 
             entities.append(entity)
 
