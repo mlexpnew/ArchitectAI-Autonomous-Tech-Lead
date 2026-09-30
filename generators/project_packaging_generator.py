@@ -130,6 +130,37 @@ pythonpath = .
         )
         print("✅ Generated pytest.ini")
 
+    def generate_openapi_spec(self):
+        try:
+            import subprocess
+            import sys
+            backend_path = str(self.backend_dir.resolve())
+            script = f"""
+import sys, json
+sys.path.insert(0, {repr(backend_path)})
+try:
+    from app.main import app
+    print("ARCHITECTAI_SPEC_START")
+    print(json.dumps(app.openapi()))
+    print("ARCHITECTAI_SPEC_END")
+except Exception:
+    import sys
+    sys.exit(1)
+"""
+            res = subprocess.run(
+                [sys.executable, "-c", script],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                cwd=self.backend_dir,
+            )
+            if res.returncode == 0 and "ARCHITECTAI_SPEC_START" in res.stdout:
+                spec_json = res.stdout.split("ARCHITECTAI_SPEC_START")[1].split("ARCHITECTAI_SPEC_END")[0].strip()
+                FileWriter.write(self.backend_dir / "openapi.json", spec_json)
+                print("✅ Generated openapi.json")
+        except Exception as e:
+            print(f"⚠️ Could not generate openapi.json: {e}")
+
     def generate_readme(
         self,
         project_name: str,
@@ -793,6 +824,7 @@ spec:
             project_name=project_name,
             blueprint=blueprint,
         )
+        self.generate_openapi_spec()
 
         self.generate_readme(
             project_name=project_name,

@@ -5,12 +5,20 @@ Clean, human-first developer dashboard.
 
 from pathlib import Path
 import re
+import json
 import streamlit as st
+import streamlit.components.v1 as components
 
 from config.settings import settings
 from orchestration.architect_pipeline import ArchitectPipeline
 from agents.solution_architect import create_solution_architect
 from tasks.architecture_tasks import create_architecture_task
+from utils.openapi_inspector import (
+    extract_openapi_spec,
+    build_sample_payload,
+    execute_test_request,
+    render_swagger_ui_html,
+)
 
 # -------------------------------------------------------------
 # Page Configuration
@@ -522,7 +530,7 @@ A Driver accepts the Ride and completes Payment.""",
                 k8s_dir = backend_dir / "k8s"
                 helm_root = backend_dir / "helm"
 
-                t_models, t_apis, t_tests, t_main, t_docker, t_k8s, t_helm = st.tabs([
+                t_models, t_apis, t_tests, t_main, t_docker, t_k8s, t_helm, t_tester = st.tabs([
                     "Models",
                     "Routers",
                     "Tests",
@@ -530,6 +538,7 @@ A Driver accepts the Ride and completes Payment.""",
                     "Dockerfile",
                     "Kubernetes",
                     "Helm",
+                    "API Tester & Docs",
                 ])
 
                 with t_models:
@@ -589,14 +598,157 @@ A Driver accepts the Ride and completes Payment.""",
                     else:
                         st.caption("Helm chart files will be generated here upon building.")
 
+                with t_tester:
+                    spec = extract_openapi_spec(backend_dir)
+                    if not spec:
+                        st.caption("OpenAPI specification could not be loaded. Please ensure the project built successfully.")
+                    else:
+                        sub_tester, sub_swagger, sub_spec = st.tabs([
+                            "⚡ Interactive Endpoint Tester",
+                            "📖 Swagger UI",
+                            "📄 OpenAPI Spec (JSON)",
+                        ])
+
+                        with sub_tester:
+                            paths = spec.get("paths", {})
+                            all_schemas = spec.get("components", {}).get("schemas", {})
+
+                            endpoint_list = []
+                            for p_path, p_methods in paths.items():
+                                for m_method, m_meta in p_methods.items():
+                                    if m_method.lower() in ("get", "post", "put", "delete", "patch"):
+                                        endpoint_list.append({
+                                            "label": f"[{m_method.upper()}] {p_path}",
+                                            "method": m_method.upper(),
+                                            "path": p_path,
+                                            "summary": m_meta.get("summary", ""),
+                                            "meta": m_meta,
+                                        })
+
+                            if not endpoint_list:
+                                st.info("No API routes detected.")
+                            else:
+                                ep_labels = [ep["label"] for ep in endpoint_list]
+                                sel_ep_label = st.selectbox("Select Endpoint", ep_labels, key="sel_endpoint_tester")
+                                sel_ep = next(ep for ep in endpoint_list if ep["label"] == sel_ep_label)
+
+                                col_m1, col_m2 = st.columns([1, 3])
+                                with col_m1:
+                                    method_color = {
+                                        "GET": "#38bdf8",
+                                        "POST": "#4ade80",
+                                        "PUT": "#fbbf24",
+                                        "DELETE": "#f87171",
+                                    }.get(sel_ep["method"], "#a78bfa")
+                                    st.markdown(
+                                        f"<span style='background: {method_color}22; color: {method_color}; "
+                                        f"border: 1px solid {method_color}55; padding: 3px 8px; border-radius: 6px; "
+                                        f"font-weight: 700; font-family: monospace; font-size: 12px;'>{sel_ep['method']}</span> "
+                                        f"<span style='font-family: monospace; font-size: 13px; color: #f1f5f9;'>{sel_ep['path']}</span>",
+                                        unsafe_allow_html=True,
+                                    )
+                                with col_m2:
+                                    if sel_ep["summary"]:
+                                        st.caption(f"Summary: {sel_ep['summary']}")
+
+                                # Path parameters if any
+                                target_path = sel_ep["path"]
+                                path_params_found = re.findall(r"\{([^}]+)\}", target_path)
+                                path_param_values = {}
+                                if path_params_found:
+                                    st.markdown("<div style='height: 6px;'></div>", unsafe_allow_html=True)
+                                    p_cols = st.columns(len(path_params_found))
+                                    for idx, p_name in enumerate(path_params_found):
+                                        with p_cols[idx]:
+                                            path_param_values[p_name] = st.text_input(
+                                                f"Path param: {{{p_name}}}",
+                                                value="1" if "id" in p_name.lower() else "sample",
+                                                key=f"pp_{p_name}_{sel_ep['label']}",
+                                            )
+                                    for p_name, p_val in path_param_values.items():
+                                        target_path = target_path.replace(f"{{{p_name}}}", p_val)
+
+                                # Request body if POST/PUT
+                                json_body = None
+                                if sel_ep["method"] in ("POST", "PUT", "PATCH"):
+                                    req_body_meta = sel_ep["meta"].get("requestBody", {})
+                                    body_schema = req_body_meta.get("content", {}).get("application/json", {}).get("schema", {})
+                                    sample_payload = build_sample_payload(body_schema, all_schemas)
+                                    sample_json_str = json.dumps(sample_payload, indent=2)
+
+                                    body_input = st.text_area(
+                                        "JSON Request Body",
+                                        value=sample_json_str,
+                                        height=130,
+                                        key=f"body_{sel_ep['label']}",
+                                    )
+                                    try:
+                                        json_body = json.loads(body_input) if body_input.strip() else None
+                                    except Exception as e:
+                                        st.error(f"Invalid JSON in request body: {e}")
+                                        json_body = None
+
+                                # Send Request button
+                                st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+                                if st.button(f"Send {sel_ep['method']} Request", type="primary", key=f"btn_send_{sel_ep['label']}"):
+                                    with st.spinner("Executing request via in-memory TestClient..."):
+                                        resp = execute_test_request(
+                                            backend_dir=backend_dir,
+                                            method=sel_ep["method"],
+                                            path=target_path,
+                                            json_body=json_body,
+                                        )
+
+                                        status_code = resp.get("status_code", 500)
+                                        latency = resp.get("latency_ms", 0.0)
+                                        resp_body = resp.get("body")
+
+                                        sc_color = "#4ade80" if 200 <= status_code < 300 else ("#fbbf24" if 400 <= status_code < 500 else "#f87171")
+
+                                        st.markdown(
+                                            f"""
+                                            <div style="display: flex; gap: 12px; align-items: center; margin-top: 10px; margin-bottom: 6px;">
+                                                <span style="background: {sc_color}22; color: {sc_color}; border: 1px solid {sc_color}55; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-family: monospace;">
+                                                    HTTP {status_code}
+                                                </span>
+                                                <span style="color: #94a3b8; font-size: 12px; font-family: monospace;">
+                                                    Latency: {latency} ms
+                                                </span>
+                                            </div>
+                                            """,
+                                            unsafe_allow_html=True,
+                                        )
+
+                                        if isinstance(resp_body, (dict, list)):
+                                            st.json(resp_body)
+                                        else:
+                                            st.code(str(resp_body), language="text")
+
+                        with sub_swagger:
+                            st.caption("Interactive OpenAPI documentation powered by Swagger UI.")
+                            swagger_html = render_swagger_ui_html(spec)
+                            components.html(swagger_html, height=600, scrolling=True)
+
+                        with sub_spec:
+                            spec_str = json.dumps(spec, indent=2)
+                            st.download_button(
+                                label="Download openapi.json",
+                                data=spec_str,
+                                file_name=f"{last_project.lower()}_openapi.json",
+                                mime="application/json",
+                                key="dl_openapi_json",
+                            )
+                            st.code(spec_str, language="json")
+
                 st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
                 # Export Downloads
                 export_info = last_result.get("export", {})
                 archive_path = export_info.get("archive")
                 report_path = export_info.get("report")
+                openapi_path = backend_dir / "openapi.json"
 
-                col_d1, col_d2 = st.columns(2)
+                col_d1, col_d2, col_d3 = st.columns(3)
                 with col_d1:
                     if archive_path and Path(archive_path).exists():
                         with open(archive_path, "rb") as f:
@@ -617,6 +769,15 @@ A Driver accepts the Ride and completes Payment.""",
                                 mime="application/json",
                                 use_container_width=True,
                             )
+                with col_d3:
+                    if openapi_path.exists():
+                        st.download_button(
+                            label="OpenAPI spec (.json)",
+                            data=openapi_path.read_text(encoding="utf-8"),
+                            file_name=f"{last_project.lower()}_openapi.json",
+                            mime="application/json",
+                            use_container_width=True,
+                        )
         else:
             # Quiet Ready State before build
             with st.container(border=True):
