@@ -6,6 +6,7 @@ required files, and generated pytest suite
 of an ArchitectAI-generated backend.
 """
 
+import os
 from pathlib import Path
 import py_compile
 import subprocess
@@ -178,6 +179,14 @@ class ProjectValidator:
             "\n🧪 Running Generated Tests..."
         )
 
+        env = os.environ.copy()
+        backend_path = str(self.backend_dir.resolve())
+        env["PYTHONPATH"] = (
+            f"{backend_path}{os.pathsep}{env.get('PYTHONPATH', '')}"
+            if env.get("PYTHONPATH")
+            else backend_path
+        )
+
         try:
 
             result = subprocess.run(
@@ -187,8 +196,11 @@ class ProjectValidator:
                     "pytest",
                     "tests",
                     "-q",
+                    "-o",
+                    f"rootdir={backend_path}",
                 ],
                 cwd=self.backend_dir,
+                env=env,
                 capture_output=True,
                 text=True,
                 timeout=120,
