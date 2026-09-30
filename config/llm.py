@@ -8,11 +8,11 @@ from config.settings import settings
 
 def _init_llm() -> LLM:
     """
-    Initializes CrewAI LLM.
-    Uses OpenAI-compatible endpoint for Groq to support environments
-    where LiteLLM is not installed.
+    Initializes CrewAI LLM with multi-provider support.
+    Uses OpenAI-compatible endpoints to support Groq, Gemini, and Ollama
+    without requiring optional external packages like LiteLLM.
     """
-    provider = getattr(settings, "LLM_PROVIDER", "groq").lower()
+    provider = settings.get_active_provider()
 
     if provider == "groq":
         return LLM(
@@ -22,8 +22,31 @@ def _init_llm() -> LLM:
             temperature=settings.MODEL_TEMPERATURE,
         )
 
+    if provider in ("google", "gemini"):
+        return LLM(
+            model=f"openai/{settings.GEMINI_MODEL}",
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            api_key=settings.GOOGLE_API_KEY or "gemini_placeholder",
+            temperature=settings.MODEL_TEMPERATURE,
+        )
+
+    if provider == "openai":
+        return LLM(
+            model=f"openai/{settings.OPENAI_MODEL}",
+            api_key=settings.OPENAI_API_KEY or "sk_placeholder",
+            temperature=settings.MODEL_TEMPERATURE,
+        )
+
+    if provider == "ollama":
+        return LLM(
+            model=f"openai/{settings.OLLAMA_MODEL}",
+            base_url=settings.OLLAMA_BASE_URL,
+            api_key="ollama",
+            temperature=settings.MODEL_TEMPERATURE,
+        )
+
     return LLM(
-        model=settings.MODEL_NAME,
+        model=settings.get_active_model(),
         temperature=settings.MODEL_TEMPERATURE,
     )
 

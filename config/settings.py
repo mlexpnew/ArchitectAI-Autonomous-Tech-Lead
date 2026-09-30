@@ -43,6 +43,25 @@ class Settings(BaseSettings):
     GEMINI_MODEL: str = "gemini-2.5-flash"
 
     # ==========================================================
+    # OpenAI Configuration (Optional)
+    # ==========================================================
+    OPENAI_API_KEY: str = ""
+
+    OPENAI_MODEL: str = "gpt-4o-mini"
+
+    # ==========================================================
+    # Ollama Configuration (Local)
+    # ==========================================================
+    OLLAMA_BASE_URL: str = "http://localhost:11434/v1"
+
+    OLLAMA_MODEL: str = "llama3.2"
+
+    # ==========================================================
+    # Testing & Mock Mode
+    # ==========================================================
+    MOCK_LLM: bool = False
+
+    # ==========================================================
     # Model Settings
     # ==========================================================
     MODEL_TEMPERATURE: float = 0.3
@@ -103,11 +122,70 @@ class Settings(BaseSettings):
     # Pydantic Configuration
     # ==========================================================
     model_config = SettingsConfigDict(
-    env_file=".env",
-    env_file_encoding="utf-8",
-    case_sensitive=True,
-    extra="ignore",
-)
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        extra="ignore",
+    )
+
+    def get_active_provider(self) -> str:
+        """
+        Determines the active provider based on configuration and available keys.
+        Falls back to alternatives if the primary provider lacks credentials.
+        """
+        if self.MOCK_LLM:
+            return "mock"
+
+        provider = self.LLM_PROVIDER.lower().strip()
+
+        # If primary provider has a key, use it
+        if provider == "groq" and self.GROQ_API_KEY.strip():
+            return "groq"
+        if provider in ("google", "gemini") and self.GOOGLE_API_KEY.strip():
+            return "gemini"
+        if provider == "openai" and self.OPENAI_API_KEY.strip():
+            return "openai"
+        if provider == "ollama":
+            return "ollama"
+
+        # Fallbacks: check if any other provider has a valid key configured
+        if self.GROQ_API_KEY.strip():
+            return "groq"
+        if self.GOOGLE_API_KEY.strip():
+            return "gemini"
+        if self.OPENAI_API_KEY.strip():
+            return "openai"
+
+        # Return configured provider even if key is missing (caller will handle error cleanly)
+        return provider
+
+    def has_valid_api_key(self) -> bool:
+        """Checks if the active provider has valid credentials configured."""
+        if self.MOCK_LLM:
+            return True
+        provider = self.get_active_provider()
+        if provider == "groq":
+            return bool(self.GROQ_API_KEY.strip())
+        if provider == "gemini":
+            return bool(self.GOOGLE_API_KEY.strip())
+        if provider == "openai":
+            return bool(self.OPENAI_API_KEY.strip())
+        if provider == "ollama":
+            return True
+        return False
+
+    def get_active_model(self) -> str:
+        """Returns the model string for the active provider."""
+        provider = self.get_active_provider()
+        if provider == "groq":
+            return self.MODEL_NAME
+        if provider == "gemini":
+            return self.GEMINI_MODEL
+        if provider == "openai":
+            return self.OPENAI_MODEL
+        if provider == "ollama":
+            return self.OLLAMA_MODEL
+        return self.MODEL_NAME
 
 
 # ==========================================================
