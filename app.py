@@ -11,6 +11,16 @@ import json
 import streamlit as st
 import streamlit.components.v1 as components
 
+# Ensure required storage directories exist on fresh cloud instances
+for _d in ["outputs", "logs", "data", "due_diligence"]:
+    Path(_d).mkdir(parents=True, exist_ok=True)
+
+# Sync Streamlit Cloud secrets to environment variables
+if hasattr(st, "secrets"):
+    for _k, _v in st.secrets.items():
+        if isinstance(_v, str) and _k not in os.environ:
+            os.environ[_k] = _v
+
 from config.settings import settings
 from orchestration.architect_pipeline import ArchitectPipeline
 from agents.solution_architect import create_solution_architect

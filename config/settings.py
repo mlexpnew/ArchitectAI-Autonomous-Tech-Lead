@@ -7,8 +7,23 @@ Centralized application configuration using Pydantic Settings.
 Supports multiple LLM providers (Groq, Gemini, OpenAI, Ollama).
 """
 
+import os
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Ensure required storage directories exist
+for _dir in ["outputs", "logs", "data"]:
+    Path(_dir).mkdir(parents=True, exist_ok=True)
+
+# Sync Streamlit Cloud secrets into environment if running on Streamlit Community Cloud
+try:
+    import streamlit as _st
+    if hasattr(_st, "secrets"):
+        for _k, _v in _st.secrets.items():
+            if isinstance(_v, str) and _k not in os.environ:
+                os.environ[_k] = _v
+except Exception:
+    pass
 
 
 class Settings(BaseSettings):
