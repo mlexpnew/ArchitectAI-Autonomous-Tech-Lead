@@ -1,6 +1,6 @@
 """
 ArchitectAI - Autonomous Tech Lead Platform
-Executive AI Engineering & Architecture Dashboard
+Executive AI Engineering & Architecture Command Center
 """
 
 import json
@@ -23,61 +23,76 @@ st.set_page_config(
 )
 
 # -------------------------------------------------------------
-# World-Class Executive Dark Theme & Custom CSS
+# World-Class Executive Dark Design System & High-Contrast CSS
 # -------------------------------------------------------------
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
-    /* Global Foundation */
-    html, body, [class*="css"] {
+    /* Global Typography & Base */
+    html, body, [class*="css"], [data-testid="stAppViewContainer"] {
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
         color: #F8FAFC !important;
     }
 
     .stApp {
-        background: radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.08) 0%, transparent 45%),
-                    radial-gradient(circle at 90% 90%, rgba(139, 92, 246, 0.08) 0%, transparent 45%),
-                    #080C14 !important;
+        background: radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 90%, rgba(139, 92, 246, 0.10) 0%, transparent 40%),
+                    #070A11 !important;
     }
 
     /* Streamlit Native Header */
     header[data-testid="stHeader"] {
-        background: rgba(8, 12, 20, 0.85) !important;
+        background: rgba(7, 10, 17, 0.85) !important;
         backdrop-filter: blur(16px) !important;
+    }
+
+    /* ALL Labels & Markdown: Guaranteed High-Contrast Visibility */
+    label, 
+    .stWidgetLabel p, 
+    [data-testid="stWidgetLabel"] p,
+    [data-testid="stWidgetLabel"] span {
+        color: #E2E8F0 !important;
+        font-weight: 700 !important;
+        font-size: 0.92rem !important;
+        letter-spacing: -0.01em !important;
+    }
+
+    .stMarkdown p, .stMarkdown span {
+        color: #F8FAFC !important;
     }
 
     /* Container Card Overrides */
     [data-testid="stVerticalBlockBorderWrapper"] {
-        background: rgba(14, 22, 38, 0.65) !important;
-        backdrop-filter: blur(20px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 16px !important;
-        padding: 24px !important;
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+        background: rgba(13, 19, 34, 0.75) !important;
+        backdrop-filter: blur(24px) !important;
+        border: 1px solid rgba(99, 102, 241, 0.22) !important;
+        border-radius: 18px !important;
+        padding: 26px !important;
+        box-shadow: 0 12px 35px -8px rgba(0, 0, 0, 0.6) !important;
         margin-bottom: 24px !important;
     }
 
-    /* Executive Top Bar */
+    /* Top Executive Bar */
     .top-nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: rgba(14, 22, 38, 0.7);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
+        background: rgba(13, 19, 34, 0.8);
+        backdrop-filter: blur(24px);
+        border: 1px solid rgba(99, 102, 241, 0.25);
+        border-radius: 18px;
         padding: 16px 24px;
         margin-bottom: 24px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     }
     .brand-title {
         display: flex;
         align-items: center;
-        gap: 12px;
-        font-size: 1.45rem;
+        gap: 14px;
+        font-size: 1.55rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #FFFFFF 0%, #CBD5E1 100%);
+        background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         letter-spacing: -0.02em;
@@ -85,12 +100,12 @@ st.markdown("""
     .brand-badge {
         font-size: 0.72rem;
         font-weight: 700;
-        background: rgba(99, 102, 241, 0.15);
-        color: #818CF8;
-        border: 1px solid rgba(99, 102, 241, 0.35);
+        background: rgba(99, 102, 241, 0.2);
+        color: #A5B4FC;
+        border: 1px solid rgba(99, 102, 241, 0.45);
         padding: 4px 10px;
         border-radius: 20px;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
     }
     .status-cluster {
@@ -102,11 +117,11 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: rgba(16, 185, 129, 0.1);
-        border: 1px solid rgba(16, 185, 129, 0.3);
+        background: rgba(16, 185, 129, 0.12);
+        border: 1px solid rgba(16, 185, 129, 0.35);
         color: #34D399;
         font-size: 0.8rem;
-        font-weight: 600;
+        font-weight: 700;
         padding: 6px 14px;
         border-radius: 30px;
     }
@@ -115,7 +130,7 @@ st.markdown("""
         height: 8px;
         background: #10B981;
         border-radius: 50%;
-        box-shadow: 0 0 8px #10B981;
+        box-shadow: 0 0 10px #10B981;
         animation: pulse 2s infinite;
     }
     @keyframes pulse {
@@ -132,19 +147,19 @@ st.markdown("""
         margin-bottom: 24px;
     }
     .kpi-card {
-        background: rgba(14, 22, 38, 0.6);
+        background: rgba(13, 19, 34, 0.7);
         backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 14px;
-        padding: 18px 20px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 20px;
         position: relative;
         overflow: hidden;
-        transition: all 0.2s ease-in-out;
+        transition: all 0.25s ease;
     }
     .kpi-card:hover {
-        transform: translateY(-2px);
-        border-color: rgba(99, 102, 241, 0.4);
-        box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.2);
+        transform: translateY(-3px);
+        border-color: rgba(99, 102, 241, 0.5);
+        box-shadow: 0 14px 28px -6px rgba(99, 102, 241, 0.25);
     }
     .kpi-card::before {
         content: '';
@@ -156,7 +171,7 @@ st.markdown("""
         background: linear-gradient(90deg, #6366F1, #8B5CF6);
     }
     .kpi-label {
-        font-size: 0.76rem;
+        font-size: 0.78rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.06em;
@@ -164,30 +179,30 @@ st.markdown("""
         margin-bottom: 6px;
     }
     .kpi-value {
-        font-size: 1.65rem;
+        font-size: 1.85rem;
         font-weight: 800;
         color: #FFFFFF;
         letter-spacing: -0.02em;
         font-family: 'JetBrains Mono', monospace;
     }
     .kpi-delta {
-        font-size: 0.75rem;
+        font-size: 0.76rem;
         color: #34D399;
-        margin-top: 4px;
+        margin-top: 6px;
         display: flex;
         align-items: center;
-        gap: 4px;
-        font-weight: 600;
+        gap: 6px;
+        font-weight: 700;
     }
 
-    /* Stepper Lifecycle Bar */
+    /* High-Contrast Stepper Bar */
     .pipeline-stepper {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
         gap: 12px;
-        background: rgba(14, 22, 38, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 14px;
+        background: rgba(13, 19, 34, 0.7);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 16px;
         padding: 16px 20px;
         margin-bottom: 24px;
     }
@@ -195,147 +210,188 @@ st.markdown("""
         display: flex;
         align-items: center;
         gap: 12px;
-        background: rgba(9, 14, 26, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 10px;
+        background: rgba(7, 10, 17, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
         padding: 10px 14px;
+        transition: all 0.2s ease;
     }
     .step-box.active {
-        border-color: rgba(99, 102, 241, 0.4);
-        background: rgba(99, 102, 241, 0.08);
+        border-color: rgba(99, 102, 241, 0.5);
+        background: rgba(99, 102, 241, 0.12);
+        box-shadow: 0 0 16px rgba(99, 102, 241, 0.15);
     }
     .step-circle {
-        width: 26px;
-        height: 26px;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
         border-radius: 50%;
-        background: #6366F1;
-        color: #FFFFFF;
-        font-size: 0.75rem;
-        font-weight: 800;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%) !important;
+        color: #FFFFFF !important;
+        font-size: 0.85rem !important;
+        font-weight: 800 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 0 10px rgba(99, 102, 241, 0.6) !important;
     }
     .step-label {
-        font-size: 0.82rem;
-        font-weight: 700;
-        color: #F8FAFC;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        color: #FFFFFF !important;
     }
     .step-sub {
-        font-size: 0.7rem;
-        color: #94A3B8;
+        font-size: 0.72rem !important;
+        color: #94A3B8 !important;
+        font-weight: 500 !important;
     }
 
-    /* High-Contrast Inputs & Text Areas */
+    /* Section Subhead Accent Badges */
+    .section-accent-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        margin-top: 4px;
+    }
+    .section-num-badge {
+        font-size: 0.72rem;
+        font-weight: 800;
+        background: rgba(99, 102, 241, 0.25);
+        color: #A5B4FC;
+        border: 1px solid rgba(99, 102, 241, 0.5);
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .section-accent-title {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #F8FAFC;
+        letter-spacing: -0.01em;
+    }
+
+    /* Ultra-High Contrast Inputs & Text Areas */
     .stTextInput input,
     .stTextArea textarea {
-        background-color: #070B14 !important;
+        background-color: #060910 !important;
         color: #FFFFFF !important;
-        border: 1px solid #1E293B !important;
-        border-radius: 10px !important;
+        border: 1.5px solid #1E293B !important;
+        border-radius: 12px !important;
         font-family: 'JetBrains Mono', monospace !important;
-        font-size: 0.88rem !important;
+        font-size: 0.92rem !important;
         line-height: 1.6 !important;
+        padding: 12px 14px !important;
+    }
+    .stTextInput input::placeholder,
+    .stTextArea textarea::placeholder {
+        color: #64748B !important;
     }
     .stTextInput input:focus,
     .stTextArea textarea:focus {
         border-color: #6366F1 !important;
-        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3) !important;
-        background-color: #0B1120 !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35) !important;
+        background-color: #0A0E1A !important;
     }
 
-    /* Selectbox Dropdown */
+    /* High-Contrast Selectbox */
     .stSelectbox div[data-baseweb="select"] > div {
-        background-color: #070B14 !important;
-        border: 1px solid #1E293B !important;
-        border-radius: 10px !important;
+        background-color: #060910 !important;
+        border: 1.5px solid #1E293B !important;
+        border-radius: 12px !important;
         color: #FFFFFF !important;
+        padding: 4px 6px !important;
+    }
+    .stSelectbox div[data-baseweb="select"] span {
+        color: #FFFFFF !important;
+        font-weight: 600 !important;
     }
 
-    /* Primary Action Buttons */
+    /* Primary Launch Button */
     .stButton>button {
         background: linear-gradient(135deg, #6366F1 0%, #4F46E5 50%, #4338CA 100%) !important;
         color: #FFFFFF !important;
         font-weight: 800 !important;
-        font-size: 1rem !important;
+        font-size: 1.05rem !important;
         border: none !important;
-        border-radius: 12px !important;
-        padding: 14px 28px !important;
-        box-shadow: 0 4px 18px rgba(79, 70, 229, 0.45) !important;
-        transition: all 0.2s ease !important;
+        border-radius: 14px !important;
+        padding: 16px 32px !important;
+        box-shadow: 0 4px 20px rgba(79, 70, 229, 0.5) !important;
+        transition: all 0.25s ease !important;
         letter-spacing: 0.02em !important;
     }
     .stButton>button:hover {
         transform: translateY(-2px) !important;
-        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.65) !important;
+        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.75) !important;
     }
 
     /* Secondary Download Buttons */
     .stDownloadButton>button {
-        background: rgba(15, 23, 42, 0.8) !important;
+        background: rgba(13, 19, 34, 0.9) !important;
         color: #38BDF8 !important;
-        border: 1px solid rgba(56, 189, 248, 0.35) !important;
-        border-radius: 10px !important;
+        border: 1.5px solid rgba(56, 189, 248, 0.4) !important;
+        border-radius: 12px !important;
         font-weight: 700 !important;
-        padding: 10px 18px !important;
+        padding: 12px 20px !important;
         transition: all 0.2s ease !important;
     }
     .stDownloadButton>button:hover {
-        background: rgba(56, 189, 248, 0.15) !important;
+        background: rgba(56, 189, 248, 0.2) !important;
         border-color: #38BDF8 !important;
+        transform: translateY(-1px) !important;
     }
 
-    /* Sidebar Navigation - Hide default radio circles, make sleek buttons */
+    /* Sidebar Navigation Overrides */
     section[data-testid="stSidebar"] {
-        background-color: #060910 !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+        background-color: #05070D !important;
+        border-right: 1px solid rgba(99, 102, 241, 0.15) !important;
     }
     div[data-testid="stRadio"] > div {
         gap: 8px !important;
     }
     div[data-testid="stRadio"] label {
-        background: rgba(14, 22, 38, 0.7) !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-radius: 10px !important;
-        padding: 10px 14px !important;
+        background: rgba(13, 19, 34, 0.7) !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
         width: 100% !important;
         transition: all 0.2s ease !important;
         cursor: pointer !important;
     }
     div[data-testid="stRadio"] label:hover {
-        background: rgba(99, 102, 241, 0.15) !important;
-        border-color: rgba(99, 102, 241, 0.35) !important;
+        background: rgba(99, 102, 241, 0.18) !important;
+        border-color: rgba(99, 102, 241, 0.45) !important;
     }
     div[data-testid="stRadio"] label > div:first-child {
         display: none !important;
     }
-    div[data-testid="stRadio"] label span {
-        color: #F8FAFC !important;
-        font-weight: 600 !important;
-        font-size: 0.88rem !important;
+    div[data-testid="stRadio"] label span,
+    div[data-testid="stRadio"] label p {
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+        font-size: 0.92rem !important;
     }
 
-    /* Entity Cards */
+    /* Entity Cards Grid */
     .entity-card {
-        background: #070B14;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
+        background: #060910;
+        border: 1.5px solid rgba(99, 102, 241, 0.22);
+        border-radius: 14px;
         padding: 16px;
         margin-bottom: 14px;
         transition: all 0.2s ease;
     }
     .entity-card:hover {
         border-color: #6366F1;
-        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.15);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.2);
     }
     .field-tag {
         display: inline-block;
-        background: #0E1626;
+        background: #0B1120;
         border: 1px solid #1E293B;
         border-radius: 6px;
-        padding: 3px 8px;
-        font-size: 0.75rem;
+        padding: 4px 8px;
+        font-size: 0.78rem;
         font-family: 'JetBrains Mono', monospace;
         color: #38BDF8;
         margin: 3px 4px 3px 0;
@@ -349,10 +405,10 @@ st.markdown("""
 st.markdown("""
 <div class="top-nav">
     <div class="brand-title">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2 17L12 22L22 17" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2 12L12 17L22 12" stroke="#4F46E5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#818CF8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="#6366F1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span>ArchitectAI</span>
         <span class="brand-badge">Autonomous Tech Lead v1.2</span>
@@ -362,10 +418,10 @@ st.markdown("""
             <div class="pulse-dot"></div>
             <span>Swarm Online (7 Specialists)</span>
         </div>
-        <div class="status-pill" style="background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3); color: #818CF8;">
+        <div class="status-pill" style="background: rgba(99, 102, 241, 0.12); border-color: rgba(99, 102, 241, 0.35); color: #818CF8;">
             <span>Docker Healthy</span>
         </div>
-        <div class="status-pill" style="background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3); color: #38BDF8;">
+        <div class="status-pill" style="background: rgba(56, 189, 248, 0.12); border-color: rgba(56, 189, 248, 0.35); color: #38BDF8;">
             <span>Redis Connected</span>
         </div>
     </div>
@@ -379,8 +435,8 @@ with st.sidebar:
     st.markdown("""
     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-            <rect width="24" height="24" rx="6" fill="#6366F1" fill-opacity="0.2"/>
-            <path d="M12 6V18M6 12H18" stroke="#818CF8" stroke-width="2" stroke-linecap="round"/>
+            <rect width="24" height="24" rx="6" fill="#6366F1" fill-opacity="0.25"/>
+            <path d="M12 6V18M6 12H18" stroke="#818CF8" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
         <div>
             <div style="font-weight: 800; font-size: 1.05rem; color: #FFFFFF;">Control Matrix</div>
@@ -393,10 +449,10 @@ with st.sidebar:
     has_key = settings.has_valid_api_key()
 
     st.markdown("""
-    <div style="background: rgba(14, 22, 38, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
-        <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: #64748B; margin-bottom: 4px;">Active LLM Provider</div>
-        <div style="font-size: 1.15rem; font-weight: 800; color: #38BDF8; letter-spacing: 0.02em;">GROQ CLOUD</div>
-        <div style="font-size: 0.75rem; color: #34D399; margin-top: 4px; font-weight: 600;">● Ultra-Low Latency Inference</div>
+    <div style="background: rgba(13, 19, 34, 0.95); border: 1.5px solid rgba(99, 102, 241, 0.25); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+        <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 800; color: #94A3B8; margin-bottom: 4px;">Active LLM Provider</div>
+        <div style="font-size: 1.2rem; font-weight: 800; color: #38BDF8; letter-spacing: 0.02em;">GROQ CLOUD</div>
+        <div style="font-size: 0.78rem; color: #34D399; margin-top: 4px; font-weight: 700;">● Ultra-Low Latency Inference</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -410,17 +466,17 @@ with st.sidebar:
         current_model = settings.get_active_model()
         default_idx = groq_models.index(current_model) if current_model in groq_models else 0
         selected_model = st.selectbox(
-            "Target Model",
+            "Target Model Selection",
             groq_models,
             index=default_idx,
-            help="High-velocity coding models hosted on Groq LPU hardware",
+            help="High-velocity coding models hosted on Groq LPU inference hardware",
         )
         if selected_model != settings.MODEL_NAME:
             settings.MODEL_NAME = selected_model
             settings.GROQ_MODEL = selected_model
             st.rerun()
 
-    st.markdown("<div style='height: 6px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
 
     mock_toggle = st.toggle("⚡ Synthetic Mock Mode", value=settings.MOCK_LLM)
     if mock_toggle != settings.MOCK_LLM:
@@ -525,9 +581,9 @@ if navigation == "⚡ Project Generator":
         st.markdown("""
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
             <span style="font-size: 1.3rem;">🚀</span>
-            <span style="font-size: 1.2rem; font-weight: 800; color: #FFFFFF;">Project Specification & Blueprint Definition</span>
+            <span style="font-size: 1.25rem; font-weight: 800; color: #FFFFFF;">Project Specification & Blueprint Definition</span>
         </div>
-        <div style="font-size: 0.88rem; color: #94A3B8; margin-bottom: 20px;">
+        <div style="font-size: 0.88rem; color: #94A3B8; margin-bottom: 22px;">
             Define functional requirements and target domain entities. ArchitectAI autonomously synthesizes models, schemas, repositories, services, routers, and unit tests.
         </div>
         """, unsafe_allow_html=True)
@@ -535,7 +591,13 @@ if navigation == "⚡ Project Generator":
         col1, col2 = st.columns([1, 2])
 
         with col1:
-            st.markdown("**1. System Identity & Architecture Preset**")
+            st.markdown("""
+            <div class="section-accent-header">
+                <span class="section-num-badge">01</span>
+                <span class="section-accent-title">SYSTEM IDENTIFIER & PRESET</span>
+            </div>
+            """, unsafe_allow_html=True)
+
             project_name = st.text_input(
                 "Project Identifier",
                 value="Hospital_Management_System",
@@ -556,13 +618,18 @@ if navigation == "⚡ Project Generator":
             )
 
             output_dir = st.text_input(
-                "Target Directory",
+                "Target Output Directory",
                 value=f"outputs/{project_name}",
                 help="Destination directory on disk for synthesized deliverables",
             )
 
         with col2:
-            st.markdown("**2. Natural Language Functional Requirements**")
+            st.markdown("""
+            <div class="section-accent-header">
+                <span class="section-num-badge">02</span>
+                <span class="section-accent-title">FUNCTIONAL REQUIREMENTS SPECIFICATION</span>
+            </div>
+            """, unsafe_allow_html=True)
 
             preset_data = {
                 "🏥 Hospital Management System": """Build an AI-powered Hospital Management System.
@@ -588,13 +655,13 @@ An Organization contains multiple Users and Projects under a Subscription tier."
 
             default_text = preset_data.get(template_choice, "Describe your software requirements and domain entities here...")
             requirements = st.text_area(
-                "System Requirements",
+                "Natural Language Requirements",
                 value=default_text,
-                height=170,
+                height=180,
                 help="Specify entities, relationships, constraints, and business logic.",
             )
 
-        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
         launch_btn = st.button("⚡ Synthesize Production Service", use_container_width=True)
 
     # Handle Generation Launch
@@ -611,9 +678,9 @@ An Organization contains multiple Users and Projects under a Subscription tier."
                     )
 
                     st.markdown("""
-                    <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 18px 24px; margin-bottom: 24px;">
+                    <div style="background: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(16, 185, 129, 0.45); border-radius: 14px; padding: 18px 24px; margin-bottom: 24px;">
                         <div style="font-size: 1.25rem; font-weight: 800; color: #34D399;">🎉 Project Synthesized & Validated Successfully!</div>
-                        <div style="font-size: 0.9rem; color: #CBD5E1; margin-top: 4px;">All database models, API routers, and runtime pytest test suites passed validation.</div>
+                        <div style="font-size: 0.9rem; color: #E2E8F0; margin-top: 4px;">All database models, API routers, and runtime pytest test suites passed validation.</div>
                     </div>
                     """, unsafe_allow_html=True)
 
@@ -638,7 +705,7 @@ An Organization contains multiple Users and Projects under a Subscription tier."
                                     st.markdown(f"""
                                     <div class="entity-card">
                                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 6px;">
-                                            <span style="font-weight: 800; color: #818CF8; font-size: 1rem;">📦 {entity.name}</span>
+                                            <span style="font-weight: 800; color: #818CF8; font-size: 1.05rem;">📦 {entity.name}</span>
                                             <span class="brand-badge" style="font-size: 0.65rem;">Entity</span>
                                         </div>
                                         <div style="font-size: 0.76rem; color: #94A3B8; margin-bottom: 8px;">Attributes:</div>
@@ -748,9 +815,9 @@ elif navigation == "📐 15-Step Architecture Studio":
         st.markdown("""
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
             <span style="font-size: 1.3rem;">📐</span>
-            <span style="font-size: 1.2rem; font-weight: 800; color: #FFFFFF;">Enterprise System Design Studio</span>
+            <span style="font-size: 1.25rem; font-weight: 800; color: #FFFFFF;">Enterprise System Design Studio</span>
         </div>
-        <div style="font-size: 0.88rem; color: #94A3B8; margin-bottom: 20px;">
+        <div style="font-size: 0.88rem; color: #94A3B8; margin-bottom: 22px;">
             Formulate production-grade Software Architecture Documents (SAD) adhering to the 15-step industry standard framework.
         </div>
         """, unsafe_allow_html=True)
@@ -772,7 +839,7 @@ elif navigation == "📐 15-Step Architecture Studio":
             st.markdown("**Availability Target**")
             st.text_input("Uptime SLO", value="99.999% (5 Nines)", disabled=True)
 
-        st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
 
         if st.button("Generate 15-Step Architecture Blueprint", use_container_width=True):
             with st.spinner("Principal Solution Architect drafting comprehensive design..."):
@@ -800,9 +867,9 @@ elif navigation == "📚 Tech Lead Specifications":
         st.markdown("""
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
             <span style="font-size: 1.3rem;">📚</span>
-            <span style="font-size: 1.2rem; font-weight: 800; color: #FFFFFF;">Architecture Reference & Standards</span>
+            <span style="font-size: 1.25rem; font-weight: 800; color: #FFFFFF;">Architecture Reference & Standards</span>
         </div>
-        <div style="font-size: 0.88rem; color: #94A3B8; margin-bottom: 20px;">
+        <div style="font-size: 0.88rem; color: #94A3B8; margin-bottom: 22px;">
             Living technical documentation, API standards, and system design specifications.
         </div>
         """, unsafe_allow_html=True)
@@ -836,9 +903,9 @@ elif navigation == "🤖 Swarm Telemetry":
         st.markdown("""
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
             <span style="font-size: 1.3rem;">🤖</span>
-            <span style="font-size: 1.2rem; font-weight: 800; color: #FFFFFF;">Autonomous Agent Swarm Status</span>
+            <span style="font-size: 1.25rem; font-weight: 800; color: #FFFFFF;">Autonomous Agent Swarm Status</span>
         </div>
-        <div style="font-size: 0.88rem; color: #94A3B8; margin-bottom: 20px;">
+        <div style="font-size: 0.88rem; color: #94A3B8; margin-bottom: 22px;">
             Real-time status of the 7 specialized autonomous engineering agents.
         </div>
         """, unsafe_allow_html=True)
@@ -857,10 +924,10 @@ elif navigation == "🤖 Swarm Telemetry":
         for idx, ag in enumerate(agents):
             with cols[idx % 2]:
                 st.markdown(f"""
-                <div style="background: rgba(10, 15, 29, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="background: #060910; border: 1.5px solid rgba(99, 102, 241, 0.22); border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
                     <div>
-                        <div style="font-weight: 800; color: #FFFFFF; font-size: 0.96rem;">{ag['name']}</div>
-                        <div style="font-size: 0.8rem; color: #94A3B8; margin-top: 2px;">{ag['role']}</div>
+                        <div style="font-weight: 800; color: #FFFFFF; font-size: 0.98rem;">{ag['name']}</div>
+                        <div style="font-size: 0.82rem; color: #94A3B8; margin-top: 3px;">{ag['role']}</div>
                     </div>
                     <span class="status-pill" style="font-size: 0.72rem; padding: 4px 10px;">
                         <div class="pulse-dot"></div>
