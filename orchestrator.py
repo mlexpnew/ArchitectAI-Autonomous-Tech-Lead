@@ -9,10 +9,11 @@ from generators.ai.project_ai_generator import AIProjectGenerator
 
 class ArchitectAI:
 
-    def __init__(self):
+    def __init__(self, output_dir: str = "outputs/Hospital_Management_System"):
 
+        self.output_dir = output_dir
         self.generator = AIProjectGenerator(
-            "outputs/Hospital_Management_System",
+            self.output_dir,
         )
 
     def build(

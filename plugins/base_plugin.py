@@ -3,9 +3,7 @@ Base Plugin
 """
 
 from abc import ABC, abstractmethod
-import code
 
-from outputs.Hospital_Management_System.backend.app.schemas import report
 from self_healing.retry_manager import RetryManager
 from validation.python_validator import PythonValidator
 from quality.quality_gate import QualityGate
@@ -45,7 +43,7 @@ class BasePlugin(ABC):
 
         if valid:
 
-            report = self.quality.check(code)
+            report = self.quality_gate.check(code)
 
             if report.passed:
 
