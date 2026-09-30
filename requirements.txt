@@ -1,10 +1,12 @@
 crewai
 groq
+openai
 python-dotenv
-streamlit
+pydantic
+pydantic-settings
 fastapi
 uvicorn
-pydantic
 rich
 loguru
 tavily-python
+pytest
