@@ -497,23 +497,26 @@ if navigation == "⚡ Build Project":
             st.markdown('<div class="card-title">New Project</div>', unsafe_allow_html=True)
             st.markdown('<div class="card-caption">Configure your backend service and specify requirements.</div>', unsafe_allow_html=True)
 
-            project_name = st.text_input(
-                "Project name",
-                value="Hospital_Management_System",
-                help="Name of the backend service package",
-            )
-
             preset_choice = st.selectbox(
-                "Preset",
+                "Preset (Template or Custom)",
                 [
                     "Hospital Management System",
                     "E-Commerce Platform",
                     "FinTech Banking Ledger",
                     "Ride-Sharing Telemetry",
-                    "Custom Requirements",
+                    "Custom Requirements (Your Own Idea)",
                 ],
                 index=0,
+                help="Choose a pre-configured enterprise archetype, or select Custom Requirements to build anything.",
             )
+
+            preset_names = {
+                "Hospital Management System": "Hospital_Management_System",
+                "E-Commerce Platform": "Ecommerce_Platform",
+                "FinTech Banking Ledger": "FinTech_Banking_Ledger",
+                "Ride-Sharing Telemetry": "Ride_Sharing_Telemetry",
+                "Custom Requirements (Your Own Idea)": "My_Custom_Service",
+            }
 
             presets_map = {
                 "Hospital Management System": """Build an AI-powered Hospital Management System.
@@ -532,14 +535,25 @@ Each Transaction records source, destination, amount, and timestamp.""",
 Manage Passenger, Driver, RideRequest, and Payment.
 A Passenger requests a Ride with pickup and dropoff coordinates.
 A Driver accepts the Ride and completes Payment.""",
+                "Custom Requirements (Your Own Idea)": """Build an AI-powered SaaS Subscription Platform.
+Manage User, Organization, Subscription, and Invoice.
+An Organization has multiple Users and an active Subscription.
+Each billing cycle generates an Invoice for the Organization.""",
             }
 
-            default_reqs = presets_map.get(preset_choice, "Describe your software requirements and domain entities here...")
+            suggested_name = preset_names.get(preset_choice, "Custom_Service")
+            project_name = st.text_input(
+                "Project name (Editable)",
+                value=suggested_name,
+                help="Type any custom project name for your backend service",
+            )
+
+            default_reqs = presets_map.get(preset_choice, "")
             requirements = st.text_area(
-                "Requirements",
+                "Requirements (Type anything here)",
                 value=default_reqs,
                 height=160,
-                help="Specify entities, relationships, constraints, and business logic.",
+                help="Describe your domain, entities, relationships, constraints, and business logic.",
             )
 
             # Entity Chips Preview (Confirms understanding before spending a run)
