@@ -91,6 +91,7 @@ class ProjectExporter:
         self_healing,
         workflow_results,
         artifacts,
+        telemetry=None,
     ):
         entities = []
 
@@ -242,6 +243,7 @@ class ProjectExporter:
             "artifacts": self._serialise_artifacts(
                 artifacts
             ),
+            "telemetry": telemetry or {},
             "statistics": statistics,
         }
 
@@ -415,6 +417,7 @@ class ProjectExporter:
         self_healing,
         workflow_results,
         artifacts,
+        telemetry=None,
     ):
         print("\n" + "=" * 60)
         print("📤 Exporting Generated Project")
@@ -433,7 +436,7 @@ class ProjectExporter:
             self_healing=self_healing,
             workflow_results=workflow_results,
             artifacts=artifacts,
-            
+            telemetry=telemetry,
         )
         
         blueprint_path = self.generate_blueprint(

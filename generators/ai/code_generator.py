@@ -2,18 +2,21 @@
 AI Code Generator
 
 Multi-provider code generation engine supporting Groq, Gemini, OpenAI,
-Ollama, and offline Mock mode with resilient error handling.
+Anthropic Claude 3.5, Ollama, and offline Mock mode with resilient error handling
+and integrated token telemetry.
 """
 
 import json
 import logging
 import re
 import time
+from typing import Any
 
 from openai import OpenAI
 
 from config.settings import settings
 from quality.prompt_optimizer import PromptOptimizer
+from analytics.token_telemetry import get_active_telemetry
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +24,8 @@ logger = logging.getLogger(__name__)
 class AICodeGenerator:
     """
     Production-grade AI code generator with multi-provider abstraction.
-    Supports Groq, Google Gemini, OpenAI, Ollama, and offline mock modes.
+    Supports Groq, Google Gemini, OpenAI, Anthropic Claude 3.5, Ollama,
+    and offline mock modes with real-time token telemetry tracking.
     """
 
     def __init__(
@@ -36,7 +40,7 @@ class AICodeGenerator:
         self.optimizer = PromptOptimizer()
         self.client = self._init_client()
 
-    def _init_client(self) -> OpenAI | None:
+    def _init_client(self) -> Any:
         """
         Safely initializes the client for the configured provider.
         Does not crash if credentials are absent at startup.
@@ -72,6 +76,19 @@ class AICodeGenerator:
                 api_key=api_key,
                 timeout=settings.REQUEST_TIMEOUT,
             )
+
+        if self.provider == "anthropic":
+            api_key = (settings.ANTHROPIC_API_KEY or "").strip()
+            if not api_key:
+                return None
+            try:
+                from anthropic import Anthropic
+                return Anthropic(
+                    api_key=api_key,
+                    timeout=settings.REQUEST_TIMEOUT,
+                )
+            except ImportError:
+                return None
 
         if self.provider == "ollama":
             return OpenAI(
@@ -120,8 +137,20 @@ class AICodeGenerator:
         """
         Generates production-ready code with automatic retries and cleanup.
         """
+        start_time = time.perf_counter()
+
         if self.mock_mode or self.provider == "mock":
-            return self._generate_mock_response(prompt)
+            result = self._generate_mock_response(prompt)
+            telemetry = get_active_telemetry()
+            if telemetry:
+                telemetry.record_text(
+                    name="AI Generator (Mock)",
+                    prompt_text=prompt,
+                    completion_text=result,
+                    model_name=self.model,
+                    duration_seconds=time.perf_counter() - start_time,
+                )
+            return result
 
         # Check for client availability
         if self.client is None:
@@ -129,6 +158,7 @@ class AICodeGenerator:
                 "groq": "GROQ_API_KEY",
                 "gemini": "GOOGLE_API_KEY",
                 "openai": "OPENAI_API_KEY",
+                "anthropic": "ANTHROPIC_API_KEY",
             }
             key_name = key_map.get(self.provider, "API_KEY")
             raise RuntimeError(
@@ -168,13 +198,31 @@ class AICodeGenerator:
 
         for attempt in range(1, max_retries + 1):
             try:
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=messages,
-                    temperature=settings.MODEL_TEMPERATURE,
-                )
+                prompt_tokens = 0
+                completion_tokens = 0
 
-                content = response.choices[0].message.content or ""
+                if self.provider == "anthropic":
+                    msg = self.client.messages.create(
+                        model=self.model,
+                        max_tokens=min(settings.MAX_OUTPUT_TOKENS, 4096),
+                        temperature=settings.MODEL_TEMPERATURE,
+                        system=system_prompt or default_system_prompt,
+                        messages=[{"role": "user", "content": prompt}],
+                    )
+                    content = msg.content[0].text if msg.content else ""
+                    prompt_tokens = getattr(getattr(msg, "usage", None), "input_tokens", 0) or 0
+                    completion_tokens = getattr(getattr(msg, "usage", None), "output_tokens", 0) or 0
+                else:
+                    response = self.client.chat.completions.create(
+                        model=self.model,
+                        messages=messages,
+                        temperature=settings.MODEL_TEMPERATURE,
+                    )
+                    content = response.choices[0].message.content or ""
+                    usage = getattr(response, "usage", None)
+                    prompt_tokens = getattr(usage, "prompt_tokens", 0) or 0
+                    completion_tokens = getattr(usage, "completion_tokens", 0) or 0
+
                 result = content.strip()
 
                 # ----------------------------------------
@@ -201,6 +249,27 @@ class AICodeGenerator:
                 for marker in remove_after:
                     if marker in result:
                         result = result.split(marker)[0].strip()
+
+                # Record Telemetry
+                telemetry = get_active_telemetry()
+                if telemetry:
+                    elapsed = time.perf_counter() - start_time
+                    if prompt_tokens > 0 or completion_tokens > 0:
+                        telemetry.record_step(
+                            name="AI Code Generation",
+                            prompt_tokens=prompt_tokens,
+                            completion_tokens=completion_tokens,
+                            model_name=self.model,
+                            duration_seconds=elapsed,
+                        )
+                    else:
+                        telemetry.record_text(
+                            name="AI Code Generation",
+                            prompt_text=prompt,
+                            completion_text=result,
+                            model_name=self.model,
+                            duration_seconds=elapsed,
+                        )
 
                 return result
 

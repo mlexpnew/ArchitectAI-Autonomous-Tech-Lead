@@ -1,6 +1,7 @@
 crewai
 groq
 openai
+anthropic>=0.30.0
 python-dotenv
 pydantic
 pydantic-settings
