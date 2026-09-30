@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: architectai-platform
+  namespace: architectai
+  labels:
+    app.kubernetes.io/name: architectai-platform
+    app.kubernetes.io/part-of: architectai
+    app.kubernetes.io/version: "2.4.0"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: architectai-platform
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: architectai-platform
+    spec:
+      containers:
+        - name: platform
+          image: architectai/platform:2.4.0
+          imagePullPolicy: IfNotPresent
+          command: ["bash", "scripts/start_platform.sh"]
+          ports:
+            - name: http-api
+              containerPort: 8000
+              protocol: TCP
+            - name: http-ui
+              containerPort: 8501
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: architectai-config
+            - secretRef:
+                name: architectai-secrets
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "2Gi"
+            limits:
+              cpu: "4000m"
+              memory: "8Gi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+          volumeMounts:
+            - name: data-volume
+              mountPath: /app/data
+            - name: outputs-volume
+              mountPath: /app/outputs
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: architectai-data-pvc
+        - name: outputs-volume
+          persistentVolumeClaim:
+            claimName: architectai-outputs-pvc
