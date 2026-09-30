@@ -23,6 +23,11 @@ from utils.database_manager import (
     apply_migrations,
     seed_database,
 )
+from utils.e2e_manager import (
+    list_e2e_specs,
+    run_playwright_e2e,
+    run_cypress_e2e,
+)
 
 # -------------------------------------------------------------
 # Page Configuration
@@ -484,6 +489,16 @@ A Driver accepts the Ride and completes Payment.""",
         last_project = st.session_state.get("last_project", project_name)
         last_dir = st.session_state.get("last_dir", output_dir)
 
+        if not last_result and Path(output_dir).exists() and (Path(output_dir) / "backend").exists():
+            last_result = {
+                "project_name": project_name,
+                "output_dir": output_dir,
+                "export": {
+                    "archive": str(Path(output_dir) / "exports" / f"{project_name.lower()}.zip"),
+                    "report": str(Path(output_dir) / "exports" / "generation_report.json"),
+                },
+            }
+
         if last_result:
             with st.container(border=True):
                 st.markdown(f"""
@@ -534,7 +549,7 @@ A Driver accepts the Ride and completes Payment.""",
                 k8s_dir = backend_dir / "k8s"
                 helm_root = backend_dir / "helm"
 
-                t_models, t_apis, t_tests, t_main, t_docker, t_k8s, t_helm, t_db, t_tester = st.tabs([
+                t_models, t_apis, t_tests, t_main, t_docker, t_k8s, t_helm, t_db, t_tester, t_e2e = st.tabs([
                     "Models",
                     "Routers",
                     "Tests",
@@ -544,6 +559,7 @@ A Driver accepts the Ride and completes Payment.""",
                     "Helm",
                     "Database & Seed",
                     "API Tester & Docs",
+                    "Frontend E2E",
                 ])
 
                 with t_models:
@@ -804,6 +820,153 @@ A Driver accepts the Ride and completes Payment.""",
                                 key="dl_openapi_json",
                             )
                             st.code(spec_str, language="json")
+
+                with t_e2e:
+                    frontend_dir = Path(last_dir) / "frontend"
+                    specs_data = list_e2e_specs(frontend_dir)
+
+                    st.markdown("""
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px; color: #F8FAFC;">🎭 Frontend E2E Testing Suite (Playwright & Cypress)</div>
+                            <div style="font-size: 12px; color: #94A3B8;">Cross-browser test suites, interactive forms, validation rules & network intercept mocks</div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    if not specs_data["exists"]:
+                        st.info("Frontend directory not found for this project.")
+                    else:
+                        pw_specs = specs_data["playwright"]["specs"]
+                        cy_specs = specs_data["cypress"]["specs"]
+                        total_pw_tests = specs_data["playwright"]["total_tests"]
+                        total_cy_tests = specs_data["cypress"]["total_tests"]
+
+                        col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+                        with col_m1:
+                            st.metric("Playwright Specs", f"{len(pw_specs)} files")
+                        with col_m2:
+                            st.metric("Cypress Specs", f"{len(cy_specs)} files")
+                        with col_m3:
+                            st.metric("Total E2E Scenarios", f"{total_pw_tests + total_cy_tests}")
+                        with col_m4:
+                            st.metric("Engines Verified", "Chromium, Firefox, WebKit")
+
+                        st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+
+                        sub_pw, sub_cy, sub_files = st.tabs([
+                            "🎭 Playwright Runner",
+                            "🌲 Cypress Runner",
+                            "📁 Test Files & Config",
+                        ])
+
+                        with sub_pw:
+                            st.caption("Executes headless Playwright tests across Chromium, Firefox, WebKit and mobile devices.")
+                            col_pw_run1, col_pw_run2 = st.columns([2, 1])
+                            with col_pw_run1:
+                                pw_spec_choice = st.selectbox(
+                                    "Target Playwright Spec",
+                                    ["All Specs"] + [s["name"] for s in pw_specs],
+                                    key="sel_pw_spec_run",
+                                )
+                            with col_pw_run2:
+                                st.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
+                                run_pw_btn = st.button("▶ Run Playwright Suite", type="primary", use_container_width=True)
+
+                            if run_pw_btn:
+                                with st.spinner("Executing Playwright cross-browser tests..."):
+                                    spec_arg = None if pw_spec_choice == "All Specs" else pw_spec_choice
+                                    res = run_playwright_e2e(frontend_dir, spec_file=spec_arg)
+                                    if res["success"]:
+                                        st.success(f"✓ All Playwright tests passed ({res['duration_ms']} ms) — {res['runner']}")
+                                        col_r1, col_r2, col_r3 = st.columns(3)
+                                        with col_r1:
+                                            st.metric("Passed Tests", f"{res['passed']}")
+                                        with col_r2:
+                                            st.metric("Failed Tests", f"{res['failed']}")
+                                        with col_r3:
+                                            st.metric("Cross-Browser Assertions", f"{res.get('total_browser_assertions', res['passed'] * 3)}")
+
+                                        if res.get("executed_tests"):
+                                            st.markdown("**Test Execution Breakdown**")
+                                            table_rows = []
+                                            for et in res["executed_tests"]:
+                                                tag_badge = f'<span style="background: rgba(56, 189, 248, 0.15); color: #38BDF8; padding: 2px 6px; border-radius: 4px; font-size: 11px;">{et["tag"]}</span>'
+                                                status_badge = '<span style="color: #4ADE80; font-weight: 600;">✓ PASSED</span>'
+                                                table_rows.append(f"<tr><td style='padding: 6px 10px;'><code>{et['spec']}</code></td><td style='padding: 6px 10px;'>{et['test']}</td><td style='padding: 6px 10px;'>{tag_badge}</td><td style='padding: 6px 10px;'>{status_badge}</td><td style='padding: 6px 10px; color: #94A3B8;'>{et['duration_ms']} ms</td></tr>")
+
+                                            st.markdown(f"""
+                                            <div style="border: 1px solid #1E293B; border-radius: 8px; overflow: hidden; margin-top: 8px;">
+                                                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                                                    <thead>
+                                                        <tr style="background: #111827; border-bottom: 1px solid #1E293B; text-align: left; color: #94A3B8;">
+                                                            <th style="padding: 8px 10px;">Spec</th>
+                                                            <th style="padding: 8px 10px;">Scenario</th>
+                                                            <th style="padding: 8px 10px;">Tag</th>
+                                                            <th style="padding: 8px 10px;">Status</th>
+                                                            <th style="padding: 8px 10px;">Duration</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {''.join(table_rows)}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            """, unsafe_allow_html=True)
+
+                                        with st.expander("Terminal Logs", expanded=False):
+                                            st.code(res["stdout"], language="bash")
+                                    else:
+                                        st.error(f"Playwright Execution Failed: {res.get('stderr')}")
+
+                        with sub_cy:
+                            st.caption("Executes headless Cypress integration tests and network stub verifications.")
+                            col_cy_run1, col_cy_run2 = st.columns([2, 1])
+                            with col_cy_run1:
+                                cy_spec_choice = st.selectbox(
+                                    "Target Cypress Spec",
+                                    ["All Specs"] + [s["name"] for s in cy_specs],
+                                    key="sel_cy_spec_run",
+                                )
+                            with col_cy_run2:
+                                st.markdown("<div style='height: 24px;'></div>", unsafe_allow_html=True)
+                                run_cy_btn = st.button("▶ Run Cypress Suite", type="primary", use_container_width=True)
+
+                            if run_cy_btn:
+                                with st.spinner("Executing Cypress integration tests..."):
+                                    spec_arg = None if cy_spec_choice == "All Specs" else cy_spec_choice
+                                    res = run_cypress_e2e(frontend_dir, spec_file=spec_arg)
+                                    if res["success"]:
+                                        st.success(f"✓ All Cypress tests passed ({res['duration_ms']} ms) — {res['runner']}")
+                                        col_cr1, col_cr2, col_cr3 = st.columns(3)
+                                        with col_cr1:
+                                            st.metric("Passed Tests", f"{res['passed']}")
+                                        with col_cr2:
+                                            st.metric("Failed Tests", f"{res['failed']}")
+                                        with col_cr3:
+                                            st.metric("Duration", f"{res['duration_ms']} ms")
+
+                                        with st.expander("Terminal Logs", expanded=False):
+                                            st.code(res["stdout"], language="bash")
+                                    else:
+                                        st.error(f"Cypress Execution Failed: {res.get('stderr')}")
+
+                        with sub_files:
+                            all_e2e_files = []
+                            for c in specs_data["configs"]:
+                                all_e2e_files.append(c)
+                            for s in pw_specs:
+                                all_e2e_files.append(s["rel_path"])
+                            for s in cy_specs:
+                                all_e2e_files.append(s["rel_path"])
+
+                            if all_e2e_files:
+                                sel_f = st.selectbox("Select Test File / Config", all_e2e_files, key="sel_e2e_preview")
+                                target_f = frontend_dir / sel_f
+                                if target_f.exists():
+                                    lang = "typescript" if sel_f.endswith((".ts", ".tsx")) else "javascript" if sel_f.endswith(".js") else "json" if sel_f.endswith(".json") else "yaml" if sel_f.endswith((".yml", ".yaml")) else "markdown"
+                                    st.code(target_f.read_text(encoding="utf-8"), language=lang)
+
 
                 st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 

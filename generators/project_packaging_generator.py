@@ -9,6 +9,7 @@ from pathlib import Path
 import json
 
 from generators.writer import FileWriter
+from generators.e2e_testing_generator import E2ETestingGenerator
 
 
 class ProjectPackagingGenerator:
@@ -576,6 +577,18 @@ Populate the database with realistic demo records:
 
     python seed.py
 
+## Frontend & E2E Testing (Playwright & Cypress)
+
+Run cross-browser automated end-to-end test suites:
+
+    cd ../frontend
+    npm install
+    npx playwright install --with-deps
+    npm run test:e2e       # Headless Playwright across Chromium, Firefox & WebKit
+    npm run test:e2e:ui    # Playwright interactive UI mode
+    npm run cypress:run    # Headless Cypress suite
+    npm run cypress:open   # Cypress interactive runner
+
 ## Architecture
 
     backend/
@@ -1119,6 +1132,17 @@ spec:
         FileWriter.write(templates_dir / "hpa.yaml", tpl_hpa)
         print("✅ Generated Helm chart (Chart.yaml, values.yaml, templates)")
 
+    def generate_e2e_testing_suite(
+        self,
+        project_name: str,
+        blueprint=None,
+    ):
+        e2e_gen = E2ETestingGenerator(output_dir=str(self.output_dir))
+        e2e_gen.generate(
+            project_name=project_name,
+            blueprint=blueprint,
+        )
+
     def generate(
         self,
         project_name: str,
@@ -1153,6 +1177,10 @@ spec:
             blueprint=blueprint,
         )
         self.generate_database_seeder(
+            project_name=project_name,
+            blueprint=blueprint,
+        )
+        self.generate_e2e_testing_suite(
             project_name=project_name,
             blueprint=blueprint,
         )
