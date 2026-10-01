@@ -35,11 +35,13 @@ import streamlit.components.v1 as components
 for _d in ["outputs", "logs", "data", "due_diligence"]:
     Path(_d).mkdir(parents=True, exist_ok=True)
 
-# Sync Streamlit Cloud secrets to environment variables
-if hasattr(st, "secrets"):
-    for _k, _v in st.secrets.items():
-        if isinstance(_v, str) and _k not in os.environ:
-            os.environ[_k] = _v
+try:
+    if hasattr(st, "secrets"):
+        for _k, _v in st.secrets.items():
+            if isinstance(_v, str) and _k not in os.environ:
+                os.environ[_k] = _v
+except Exception:
+    pass
 
 from config.settings import settings
 from orchestration.architect_pipeline import ArchitectPipeline
@@ -605,12 +607,21 @@ Each billing cycle generates an Invoice for the Organization.""",
                     except Exception as exc:
                         st.error(f"Error: {exc}")
 
-        # Render Results or Ready State
-        last_result = st.session_state.get("last_result")
-        last_project = st.session_state.get("last_project", project_name)
-        last_dir = st.session_state.get("last_dir", output_dir)
+        # Render Results or Ready State dynamically matching selected project
+        curr_backend_exists = (Path(output_dir) / "backend").exists()
+        just_built = (
+            st.session_state.get("last_project") == project_name
+            and st.session_state.get("last_dir") == output_dir
+            and "last_result" in st.session_state
+        )
 
-        if not last_result and Path(output_dir).exists() and (Path(output_dir) / "backend").exists():
+        if just_built:
+            last_result = st.session_state["last_result"]
+            last_project = project_name
+            last_dir = output_dir
+            badge_title = "✓ Built successfully"
+            badge_caption = f"All models, routers, and 100% of generated pytest tests passed verification for {project_name}."
+        elif curr_backend_exists:
             last_result = {
                 "project_name": project_name,
                 "output_dir": output_dir,
@@ -619,15 +630,25 @@ Each billing cycle generates an Invoice for the Organization.""",
                     "report": str(Path(output_dir) / "exports" / "generation_report.json"),
                 },
             }
+            last_project = project_name
+            last_dir = output_dir
+            badge_title = f"✓ Verified Project Ready — {project_name}"
+            badge_caption = f"Active codebase loaded for {project_name}. All models, routers, and tests verified."
+        else:
+            last_result = None
+            last_project = project_name
+            last_dir = output_dir
+            badge_title = ""
+            badge_caption = ""
 
         if last_result:
             with st.container(border=True):
                 st.markdown(f"""
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                    <div class="card-title">✓ Built successfully</div>
+                    <div class="card-title">{badge_title}</div>
                     <span class="status-dot"></span>
                 </div>
-                <div class="card-caption">All models, routers, and 100% of generated pytest tests passed verification.</div>
+                <div class="card-caption">{badge_caption}</div>
                 """, unsafe_allow_html=True)
 
                 # Progress Checklist (Done)
@@ -835,17 +856,37 @@ Each billing cycle generates an Invoice for the Organization.""",
 
                 with t_models:
                     if models_dir.exists():
-                        m_files = [f.name for f in models_dir.glob("*.py") if f.name != "__init__.py"]
+                        m_files = sorted([f.name for f in models_dir.glob("*.py") if f.name != "__init__.py"])
                         if m_files:
-                            m_choice = st.selectbox("Model file", m_files, key="sel_m", label_visibility="collapsed")
-                            st.code((models_dir / m_choice).read_text(encoding="utf-8"), language="python")
+                            m_choice = st.selectbox("Model file", m_files, key=f"sel_m_{last_project}", label_visibility="collapsed")
+                            target_m_path = models_dir / m_choice
+                            if target_m_path.exists():
+                                code_text = target_m_path.read_text(encoding="utf-8")
+                                col_lines = [line.strip().split("=")[0].strip() for line in code_text.splitlines() if " = Column(" in line]
+                                rel_lines = [line.strip().split("=")[0].strip() for line in code_text.splitlines() if " = relationship(" in line]
+
+                                cols_badge = ", ".join([f"<code>{c}</code>" for c in col_lines]) if col_lines else "None"
+                                rels_badge = f"<br><strong>Relationships:</strong> {', '.join([f'<code>{r}</code>' for r in rel_lines])}" if rel_lines else ""
+
+                                st.markdown(f"""
+                                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.82rem;">
+                                    <div style="color: #F8FAFC; font-weight: 600; margin-bottom: 4px;">📋 Model Blueprint: <code>{m_choice}</code></div>
+                                    <div style="color: #94A3B8;">
+                                        <strong>Columns ({len(col_lines)}):</strong> {cols_badge}
+                                        {rels_badge}
+                                    </div>
+                                </div>
+                                """, unsafe_allow_html=True)
+                                st.code(code_text, language="python")
 
                 with t_apis:
                     if apis_dir.exists():
-                        a_files = [f.name for f in apis_dir.glob("*.py") if f.name != "__init__.py"]
+                        a_files = sorted([f.name for f in apis_dir.glob("*.py") if f.name != "__init__.py"])
                         if a_files:
-                            a_choice = st.selectbox("Router file", a_files, key="sel_a", label_visibility="collapsed")
-                            st.code((apis_dir / a_choice).read_text(encoding="utf-8"), language="python")
+                            a_choice = st.selectbox("Router file", a_files, key=f"sel_a_{last_project}", label_visibility="collapsed")
+                            target_a_path = apis_dir / a_choice
+                            if target_a_path.exists():
+                                st.code(target_a_path.read_text(encoding="utf-8"), language="python")
 
                 with t_tests:
                     st.markdown("""
@@ -860,9 +901,9 @@ Each billing cycle generates an Invoice for the Organization.""",
                     col_t_action1, col_t_action2 = st.columns([2, 1])
                     with col_t_action1:
                         if tests_dir.exists():
-                            t_files = [f.name for f in tests_dir.glob("test_*.py")]
+                            t_files = sorted([f.name for f in tests_dir.glob("test_*.py")])
                             if t_files:
-                                t_choice = st.selectbox("Test file", t_files, key="sel_t", label_visibility="collapsed")
+                                t_choice = st.selectbox("Test file", t_files, key=f"sel_t_{last_project}", label_visibility="collapsed")
                             else:
                                 t_choice = None
                         else:
@@ -906,7 +947,7 @@ Each billing cycle generates an Invoice for the Organization.""",
                     if k8s_dir.exists():
                         k_files = sorted([f.name for f in k8s_dir.glob("*.yaml")])
                         if k_files:
-                            k_choice = st.selectbox("Kubernetes Manifest", k_files, key="sel_k8s", label_visibility="collapsed")
+                            k_choice = st.selectbox("Kubernetes Manifest", k_files, key=f"sel_k8s_{last_project}", label_visibility="collapsed")
                             st.code((k8s_dir / k_choice).read_text(encoding="utf-8"), language="yaml")
                     else:
                         st.caption("Kubernetes manifests will be generated here upon building.")
@@ -920,7 +961,7 @@ Each billing cycle generates an Invoice for the Organization.""",
                             tpl_dir = chart_dir / "templates"
                             if tpl_dir.exists():
                                 helm_files += [f"templates/{f.name}" for f in sorted(tpl_dir.glob("*")) if f.is_file()]
-                            h_choice = st.selectbox("Helm Chart File", helm_files, key="sel_helm", label_visibility="collapsed")
+                            h_choice = st.selectbox("Helm Chart File", helm_files, key=f"sel_helm_{last_project}", label_visibility="collapsed")
                             target_f = chart_dir / h_choice
                             if target_f.exists():
                                 lang = "yaml" if h_choice.endswith((".yaml", ".yml")) else "text"
@@ -1392,8 +1433,8 @@ Each billing cycle generates an Invoice for the Organization.""",
         else:
             # Quiet Ready State before build
             with st.container(border=True):
-                st.markdown('<div class="card-title">Pipeline</div>', unsafe_allow_html=True)
-                st.markdown('<div class="card-caption">Stages executed automatically when you build the service.</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="card-title">Ready to build: {project_name}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="card-caption">Configure domain specifications on the left and click <strong>Build service</strong> to synthesize the backend architecture for {project_name}.</div>', unsafe_allow_html=True)
 
                 st.markdown("""
                 <div class="stage-row">
@@ -1424,7 +1465,7 @@ Each billing cycle generates an Invoice for the Organization.""",
                 """, unsafe_allow_html=True)
 
                 st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-                st.info("💡 Fill in the project details on the left and click **Build service** to run the pipeline.")
+                st.info(f"💡 Click **Build service** on the left to generate the SQLAlchemy models, FastAPI routers, and Pytest suite for **{project_name}**.")
 
 # -------------------------------------------------------------
 # VIEW 2: System Architecture Studio
