@@ -36,15 +36,27 @@ alembic
         print("✅ Generated requirements.txt")
 
     def generate_env_example(self):
-        content = """# Generated Backend Configuration
+        content = """# ==========================================================
+# Generated Backend Configuration
+# ==========================================================
 
 APP_ENV=development
 DEBUG=True
 
+# Database Configuration (SQLite for local, or PostgreSQL for production)
 DATABASE_URL=sqlite:///./app.db
+# DATABASE_URL=postgresql+psycopg2://postgres:postgres@localhost:5432/app_db
+
+# Connection Pool Settings (high-throughput production)
+DB_POOL_SIZE=20
+DB_MAX_OVERFLOW=10
+DB_POOL_TIMEOUT=30
 
 API_HOST=0.0.0.0
 API_PORT=8000
+
+# Optional Redis Cache
+REDIS_URL=redis://localhost:6379/0
 """
 
         FileWriter.write(
@@ -59,13 +71,28 @@ API_PORT=8000
 
 WORKDIR /app
 
+# Install curl for container health check
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install python dependencies
 COPY requirements.txt .
+RUN pip install --no-cache-dir -U pip && \\
+    pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt
-
+# Copy application source
 COPY . .
 
+# Security hardening: Run as non-root user
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
 EXPOSE 8000
+
+# Automated Container Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \\
+    CMD curl -f http://localhost:8000/ || exit 1
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 """
