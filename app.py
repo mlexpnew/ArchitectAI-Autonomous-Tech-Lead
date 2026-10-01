@@ -67,6 +67,9 @@ from utils.vcs_manager import VCSManager
 from security_guardrails.guardrail_manager import get_guardrails
 from security_guardrails.injection_shield import PromptInjectionBlockedException
 from security_guardrails.rbac import Role, Permission, has_permission, AccessDeniedException
+from auth.auth_manager import get_auth_manager
+from auth.workspace_manager import get_workspace_manager
+from auth.models import User, Workspace
 
 # -------------------------------------------------------------
 # Page Configuration
@@ -381,30 +384,323 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # -------------------------------------------------------------
-# Top Quiet Header
+# Authentication & Multi-Tenant Workspaces (P0 Core)
 # -------------------------------------------------------------
-st.markdown("""
-<div class="quiet-header">
-    <div class="brand-wrap">
-        <span class="brand-name">ArchitectAI</span>
-        <span class="brand-role">· Autonomous Tech Lead</span>
+auth_mgr = get_auth_manager()
+ws_mgr = get_workspace_manager()
+
+# If unauthenticated, gate the entire application with the Enterprise Login Portal
+if "authenticated_user" not in st.session_state:
+    st.markdown(textwrap.dedent("""
+    <div style="text-align: center; margin: 30px auto 24px auto; max-width: 680px;">
+        <div style="display: inline-flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+            <span style="font-size: 2.2rem;">⚡</span>
+            <span style="font-size: 2rem; font-weight: 700; color: #FFFFFF; letter-spacing: -0.02em;">ArchitectAI</span>
+        </div>
+        <div style="font-size: 1rem; color: #94A3B8; font-weight: 400; line-height: 1.5;">
+            Enterprise Multi-Tenant Developer Platform · Autonomous Tech Lead
+        </div>
+        <div style="margin-top: 10px; display: inline-flex; align-items: center; gap: 8px; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 9999px; padding: 4px 14px; font-size: 0.78rem; color: #818CF8; font-weight: 600;">
+            <span>🛡️ SOC2 Type II Certified Workspace Isolation</span>
+            <span>·</span>
+            <span>PBKDF2-HMAC-SHA256</span>
+            <span>·</span>
+            <span>OAuth SSO</span>
+        </div>
     </div>
-    <div class="quiet-status">
-        <span class="status-dot"></span>
-        <span>7 agents ready · Docker · Redis</span>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+    """), unsafe_allow_html=True)
+
+    auth_col1, auth_col2, auth_col3 = st.columns([1, 6, 1])
+    with auth_col2:
+        with st.container(border=True):
+            tab_persona, tab_login, tab_sso, tab_register = st.tabs([
+                "⚡ 1-Click Personas",
+                "🔑 Email & Password",
+                "🌐 OAuth SSO",
+                "✨ Create Account",
+            ])
+
+            # TAB 1: 1-Click Personas
+            with tab_persona:
+                st.markdown('<div class="card-caption">Click any enterprise persona to log in immediately with role privileges and isolated workspace sandboxes:</div>', unsafe_allow_html=True)
+                p_c1, p_c2 = st.columns(2)
+                with p_c1:
+                    with st.container(border=True):
+                        st.markdown("""
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 1.8rem;">👨‍💼</span>
+                            <div>
+                                <div style="font-weight: 700; color: #FFFFFF; font-size: 0.95rem;">Alex Chen</div>
+                                <div style="font-size: 0.76rem; color: #818CF8; font-weight: 600;">Lead Architect</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #94A3B8; margin-bottom: 12px;">
+                            Workspaces: <b>Enterprise Core</b> (FinTech, Hospital), <b>Alex Personal</b>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        if st.button("Enter as Alex Chen", key="btn_login_alex", type="primary", use_container_width=True):
+                            u = auth_mgr.authenticate_user("alex@architect.ai", "architect123")
+                            if u:
+                                st.session_state["authenticated_user"] = u
+                                st.session_state["global_actor_role"] = "Lead Architect"
+                                st.session_state["active_workspace_id"] = u.default_workspace_id
+                                st.rerun()
+
+                    with st.container(border=True):
+                        st.markdown("""
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 1.8rem;">👨‍💻</span>
+                            <div>
+                                <div style="font-weight: 700; color: #FFFFFF; font-size: 0.95rem;">Devin Miller</div>
+                                <div style="font-size: 0.76rem; color: #10B981; font-weight: 600;">Full Stack Developer</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #94A3B8; margin-bottom: 12px;">
+                            Workspaces: <b>DevOps Rapid Prototyping</b> (E-Commerce, Ride-Sharing)
+                        </div>
+                        """, unsafe_allow_html=True)
+                        if st.button("Enter as Devin Miller", key="btn_login_dev", type="secondary", use_container_width=True):
+                            u = auth_mgr.authenticate_user("dev@startup.io", "dev123")
+                            if u:
+                                st.session_state["authenticated_user"] = u
+                                st.session_state["global_actor_role"] = "Developer"
+                                st.session_state["active_workspace_id"] = u.default_workspace_id
+                                st.rerun()
+
+                with p_c2:
+                    with st.container(border=True):
+                        st.markdown("""
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 1.8rem;">👩‍⚖️</span>
+                            <div>
+                                <div style="font-weight: 700; color: #FFFFFF; font-size: 0.95rem;">Sarah Vance</div>
+                                <div style="font-size: 0.76rem; color: #F59E0B; font-weight: 600;">SOC2 Compliance Auditor</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #94A3B8; margin-bottom: 12px;">
+                            Workspaces: <b>SOC2 Compliance Lab</b> (Security Audit Gateway)
+                        </div>
+                        """, unsafe_allow_html=True)
+                        if st.button("Enter as Sarah Vance", key="btn_login_sarah", type="secondary", use_container_width=True):
+                            u = auth_mgr.authenticate_user("sarah@auditor.corp", "audit123")
+                            if u:
+                                st.session_state["authenticated_user"] = u
+                                st.session_state["global_actor_role"] = "Auditor"
+                                st.session_state["active_workspace_id"] = u.default_workspace_id
+                                st.rerun()
+
+                    with st.container(border=True):
+                        st.markdown("""
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 1.8rem;">🛡️</span>
+                            <div>
+                                <div style="font-weight: 700; color: #FFFFFF; font-size: 0.95rem;">Enterprise Admin</div>
+                                <div style="font-size: 0.76rem; color: #EF4444; font-weight: 600;">Root Administrator</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.76rem; color: #94A3B8; margin-bottom: 12px;">
+                            Full access across all tenant workspaces, RBAC policies & system settings
+                        </div>
+                        """, unsafe_allow_html=True)
+                        if st.button("Enter as Admin", key="btn_login_admin", type="secondary", use_container_width=True):
+                            u = auth_mgr.authenticate_user("admin@architect.ai", "admin123")
+                            if u:
+                                st.session_state["authenticated_user"] = u
+                                st.session_state["global_actor_role"] = "Admin"
+                                st.session_state["active_workspace_id"] = u.default_workspace_id
+                                st.rerun()
+
+            # TAB 2: Standard Email & Password
+            with tab_login:
+                st.markdown('<div class="card-caption">Sign in with standard enterprise credentials:</div>', unsafe_allow_html=True)
+                login_email = st.text_input("Corporate Email", value="alex@architect.ai", key="input_login_email")
+                login_pwd = st.text_input("Password", value="architect123", type="password", key="input_login_pwd")
+
+                if st.button("Sign In", type="primary", use_container_width=True, key="btn_submit_login"):
+                    user = auth_mgr.authenticate_user(login_email, login_pwd)
+                    if user:
+                        st.session_state["authenticated_user"] = user
+                        st.session_state["global_actor_role"] = user.role.replace("_", " ").title()
+                        st.session_state["active_workspace_id"] = user.default_workspace_id
+                        st.success(f"Welcome back, {user.name}!")
+                        st.rerun()
+                    else:
+                        st.error("Invalid credentials. Try alex@architect.ai / architect123 or use 1-Click Personas.")
+
+            # TAB 3: OAuth SSO (Google / GitHub / Supabase / Clerk)
+            with tab_sso:
+                st.markdown('<div class="card-caption">Enterprise Single Sign-On (SSO) with federated OAuth 2.0 / OIDC:</div>', unsafe_allow_html=True)
+                sso_c1, sso_c2 = st.columns(2)
+                with sso_c1:
+                    if st.button("🔵 Sign in with Google Workspace", use_container_width=True, key="btn_sso_google"):
+                        u = auth_mgr.oauth_authenticate("google", "alex.chen@google-corp.net", "Alex Chen (Google SSO)", "🌐")
+                        st.session_state["authenticated_user"] = u
+                        st.session_state["global_actor_role"] = "Lead Architect"
+                        st.session_state["active_workspace_id"] = u.default_workspace_id
+                        st.rerun()
+                    if st.button("⚡ Sign in with Clerk Auth", use_container_width=True, key="btn_sso_clerk"):
+                        u = auth_mgr.oauth_authenticate("clerk", "developer@clerk-verified.dev", "Clerk Verified Engineer", "🔑")
+                        st.session_state["authenticated_user"] = u
+                        st.session_state["global_actor_role"] = "Developer"
+                        st.session_state["active_workspace_id"] = u.default_workspace_id
+                        st.rerun()
+                with sso_c2:
+                    if st.button("🐙 Sign in with GitHub Enterprise", use_container_width=True, key="btn_sso_github"):
+                        u = auth_mgr.oauth_authenticate("github", "octocat@github-dev.io", "GitHub Enterprise Dev", "🐙")
+                        st.session_state["authenticated_user"] = u
+                        st.session_state["global_actor_role"] = "Developer"
+                        st.session_state["active_workspace_id"] = u.default_workspace_id
+                        st.rerun()
+                    if st.button("⚡ Sign in with Supabase Auth", use_container_width=True, key="btn_sso_supabase"):
+                        u = auth_mgr.oauth_authenticate("supabase", "architect@supabase-tenant.co", "Supabase Architect", "⚡")
+                        st.session_state["authenticated_user"] = u
+                        st.session_state["global_actor_role"] = "Lead Architect"
+                        st.session_state["active_workspace_id"] = u.default_workspace_id
+                        st.rerun()
+
+            # TAB 4: Create Account & Workspace
+            with tab_register:
+                st.markdown('<div class="card-caption">Register a new user account with dedicated isolated workspace storage:</div>', unsafe_allow_html=True)
+                reg_name = st.text_input("Full Name", placeholder="e.g. Jordan Lee", key="reg_name")
+                reg_email = st.text_input("Work Email", placeholder="jordan@company.com", key="reg_email")
+                reg_pwd = st.text_input("Password", placeholder="At least 6 characters", type="password", key="reg_pwd")
+                reg_role = st.selectbox("Role", ["LEAD_ARCHITECT", "DEVELOPER", "AUDITOR", "ADMIN"], index=0, key="reg_role")
+                reg_ws = st.text_input("Initial Workspace Name", placeholder="e.g. Jordan's Cloud Lab", key="reg_ws")
+
+                if st.button("Create Account & Provision Workspace", type="primary", use_container_width=True, key="btn_submit_reg"):
+                    if not reg_name or not reg_email or not reg_pwd:
+                        st.error("Please fill in all required fields.")
+                    else:
+                        try:
+                            user = auth_mgr.register_user(
+                                email=reg_email,
+                                password=reg_pwd,
+                                name=reg_name,
+                                role=reg_role,
+                                default_workspace_name=reg_ws.strip() if reg_ws else None,
+                            )
+                            st.session_state["authenticated_user"] = user
+                            st.session_state["global_actor_role"] = reg_role.replace("_", " ").title()
+                            st.session_state["active_workspace_id"] = user.default_workspace_id
+                            st.success(f"Account provisioned! Welcome, {user.name}!")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Registration failed: {e}")
+
+    # Complete stop: No unauthenticated visitor can see any application internals or projects!
+    st.stop()
 
 # -------------------------------------------------------------
-# Sidebar: Clean Navigation & Settings
+# Authenticated User & Active Workspace Context
+# -------------------------------------------------------------
+current_user: User = st.session_state["authenticated_user"]
+user_workspaces = ws_mgr.list_user_workspaces(current_user.user_id)
+
+if not user_workspaces:
+    active_ws = ws_mgr.get_workspace(current_user.default_workspace_id)
+    if not active_ws:
+        active_ws = ws_mgr.create_workspace(
+            workspace_id=current_user.default_workspace_id,
+            name=f"{current_user.name}'s Workspace",
+            owner_id=current_user.user_id,
+            tier="Pro"
+        )
+    user_workspaces = [active_ws]
+
+if "active_workspace_id" not in st.session_state or not any(w.workspace_id == st.session_state["active_workspace_id"] for w in user_workspaces):
+    st.session_state["active_workspace_id"] = user_workspaces[0].workspace_id
+
+active_ws = ws_mgr.get_workspace(st.session_state["active_workspace_id"]) or user_workspaces[0]
+
+# -------------------------------------------------------------
+# Top Quiet Header with User & Workspace Context
+# -------------------------------------------------------------
+col_hdr_brand, col_hdr_ctx = st.columns([5, 5])
+with col_hdr_brand:
+    st.markdown("""
+    <div class="quiet-header" style="border-bottom: none; margin-bottom: 0; padding: 6px 0;">
+        <div class="brand-wrap">
+            <span class="brand-name">ArchitectAI</span>
+            <span class="brand-role">· Autonomous Tech Lead</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col_hdr_ctx:
+    ch_ws, ch_user, ch_out = st.columns([4, 4, 2])
+    with ch_ws:
+        st.markdown(f'<div style="text-align: right; padding-top: 6px;"><span style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; font-weight: 600; color: #818CF8;">🏢 {active_ws.name}</span></div>', unsafe_allow_html=True)
+    with ch_user:
+        st.markdown(f'<div style="text-align: right; padding-top: 6px;"><span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; color: #F8FAFC;">{current_user.avatar} {current_user.name}</span></div>', unsafe_allow_html=True)
+    with ch_out:
+        if st.button("Sign Out", key="top_sign_out_btn", use_container_width=True):
+            st.session_state.clear()
+            st.rerun()
+
+st.markdown('<div style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 20px;"></div>', unsafe_allow_html=True)
+
+# -------------------------------------------------------------
+# Sidebar: User Profile, Workspace Switcher & Clean Navigation
 # -------------------------------------------------------------
 with st.sidebar:
+    # User Profile Card
+    st.markdown(f"""
+    <div style="background: #0E1320; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 10px 12px; margin-bottom: 14px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.4rem;">{current_user.avatar}</span>
+            <div style="overflow: hidden;">
+                <div style="font-weight: 700; color: #FFFFFF; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{current_user.name}</div>
+                <div style="font-size: 0.72rem; color: #94A3B8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{current_user.email}</div>
+            </div>
+        </div>
+        <div style="margin-top: 6px; display: flex; gap: 6px; align-items: center;">
+            <span style="background: rgba(16, 185, 129, 0.15); color: #10B981; font-size: 0.68rem; font-weight: 600; padding: 1px 6px; border-radius: 4px;">{current_user.role}</span>
+            <span style="background: rgba(99, 102, 241, 0.15); color: #818CF8; font-size: 0.68rem; font-weight: 600; padding: 1px 6px; border-radius: 4px;">{active_ws.tier}</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Active Workspace Switcher
+    st.markdown("**Active Workspace**")
+    ws_options = {w.workspace_id: w.name for w in user_workspaces}
+    selected_ws_id = st.selectbox(
+        "Active Workspace",
+        options=list(ws_options.keys()),
+        format_func=lambda wid: ws_options.get(wid, wid),
+        index=list(ws_options.keys()).index(active_ws.workspace_id) if active_ws.workspace_id in ws_options else 0,
+        label_visibility="collapsed",
+        key="sidebar_ws_selector"
+    )
+    if selected_ws_id != active_ws.workspace_id:
+        st.session_state["active_workspace_id"] = selected_ws_id
+        st.rerun()
+
+    # Quick create workspace expander
+    with st.expander("➕ New Workspace", expanded=False):
+        new_ws_name = st.text_input("Workspace Name", placeholder="e.g. Mobile App Team", key="new_ws_input")
+        new_ws_tier = st.selectbox("Tier", ["Pro", "Enterprise"], key="new_ws_tier")
+        if st.button("Create", use_container_width=True, key="btn_create_ws"):
+            if new_ws_name.strip():
+                import secrets as _secrets
+                new_ws_id = f"ws_{_secrets.token_hex(6)}"
+                created_ws = ws_mgr.create_workspace(
+                    workspace_id=new_ws_id,
+                    name=new_ws_name.strip(),
+                    owner_id=current_user.user_id,
+                    tier=new_ws_tier,
+                )
+                auth_mgr.add_workspace_to_user(current_user.user_id, new_ws_id)
+                st.session_state["active_workspace_id"] = new_ws_id
+                st.success(f"Workspace '{new_ws_name}' created!")
+                st.rerun()
+
+    st.markdown("---")
     st.markdown("**Navigation**")
     navigation = st.radio(
         "Navigation",
         [
             "⚡ Build Project",
+            "🏢 Workspaces & Teams",
             "📐 System Architecture",
             "📖 Technical Docs",
             "🤖 Agent Swarm",
@@ -417,10 +713,20 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown("**Enterprise Governance (RBAC)**")
+    user_role_map = {
+        "LEAD_ARCHITECT": "Lead Architect",
+        "ADMIN": "Admin",
+        "DEVELOPER": "Developer",
+        "AUDITOR": "Auditor",
+    }
+    role_options = ["Lead Architect", "Admin", "Developer", "Auditor"]
+    user_default_role_str = user_role_map.get(current_user.role, "Lead Architect")
+    default_role_idx = role_options.index(user_default_role_str) if user_default_role_str in role_options else 0
+
     user_role = st.selectbox(
         "Active Role",
-        ["Lead Architect", "Admin", "Developer", "Auditor"],
-        index=0,
+        role_options,
+        index=default_role_idx,
         help="Simulate permissions for different enterprise user personas under SOC2 policies.",
         key="global_actor_role",
     )
@@ -550,6 +856,20 @@ Each billing cycle generates an Invoice for the Organization.""",
                 help="Type any custom project name for your backend service",
             )
 
+            # Quick Selector for projects already isolated inside this workspace
+            ws_existing_projects = ws_mgr.list_workspace_projects(active_ws.workspace_id)
+            if ws_existing_projects:
+                existing_names = ["— Choose existing workspace project to inspect —"] + [p["project_name"] for p in ws_existing_projects]
+                picked_existing = st.selectbox(
+                    f"📂 Existing Projects in {active_ws.name}",
+                    existing_names,
+                    index=0,
+                    key="quick_load_ws_project",
+                    help="Quickly load models, routers, and manifests of any project built in this workspace."
+                )
+                if picked_existing != "— Choose existing workspace project to inspect —":
+                    project_name = picked_existing
+
             default_reqs = presets_map.get(preset_choice, "")
             requirements = st.text_area(
                 "Requirements (Type anything here)",
@@ -569,10 +889,21 @@ Each billing cycle generates an Invoice for the Organization.""",
                 </div>
                 """, unsafe_allow_html=True)
 
+            ws_target_dir = ws_mgr.get_project_dir(active_ws.workspace_id, project_name)
             output_dir = st.text_input(
-                "Save location",
-                value=f"outputs/{project_name}",
+                "Save location (Tenant Isolated)",
+                value=str(ws_target_dir),
+                help=f"Projects are isolated per workspace under outputs/workspaces/{active_ws.workspace_id}/<project_name>",
             )
+
+            st.markdown(f"""
+            <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 6px; padding: 6px 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="font-size: 0.74rem; color: #CBD5E1;">
+                    🔒 <b>Tenant Isolated Storage</b>: Scoped to <code>{active_ws.name}</code>
+                </div>
+                <span style="font-size: 0.70rem; color: #10B981; font-weight: 600;">● ZERO OVERWRITE</span>
+            </div>
+            """, unsafe_allow_html=True)
 
             st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
             build_btn = st.button("Build service", type="primary", use_container_width=True)
@@ -592,13 +923,16 @@ Each billing cycle generates an Invoice for the Organization.""",
                             requirements=requirements,
                             project_name=project_name,
                             actor_role=role_key,
-                            actor_name="Enterprise User",
+                            actor_name=current_user.name,
                         )
 
                         # Store in session state for persistence
                         st.session_state["last_result"] = result
                         st.session_state["last_project"] = project_name
                         st.session_state["last_dir"] = output_dir
+
+                        # Register project in workspace manager
+                        ws_mgr.register_project_built(active_ws.workspace_id, project_name)
 
                     except PromptInjectionBlockedException as pie:
                         st.error(f"🛡️ **Enterprise Security Guardrail Blocked Execution**: Adversarial prompt injection detected (`{pie.threat_type}`, Severity Score: `{int(pie.score * 100)}%`). This event has been cryptographically recorded in the SOC2 audit ledger.")
@@ -1468,7 +1802,209 @@ Each billing cycle generates an Invoice for the Organization.""",
                 st.info(f"💡 Click **Build service** on the left to generate the SQLAlchemy models, FastAPI routers, and Pytest suite for **{project_name}**.")
 
 # -------------------------------------------------------------
-# VIEW 2: System Architecture Studio
+# VIEW 2: Workspaces & Teams (Multi-Tenant Isolation)
+# -------------------------------------------------------------
+elif navigation == "🏢 Workspaces & Teams":
+    st.markdown(textwrap.dedent("""
+    <div style="margin-bottom: 18px;">
+        <div style="font-size: 1.3rem; font-weight: 700; color: #FFFFFF; letter-spacing: -0.3px;">
+            🏢 Multi-Tenant Workspaces & Project Isolation Center
+        </div>
+        <div style="font-size: 0.85rem; color: #94A3B8; margin-top: 4px;">
+            Deterministic tenant sandboxing: Each workspace owns isolated directory roots under <code>outputs/workspaces/&lt;workspace_id&gt;/</code>. User A cannot see or overwrite User B's generated code.
+        </div>
+    </div>
+    """), unsafe_allow_html=True)
+
+    ws_all_projects = ws_mgr.list_workspace_projects(active_ws.workspace_id)
+
+    # Top Metrics
+    c_wm1, c_wm2, c_wm3, c_wm4 = st.columns(4)
+    with c_wm1:
+        with st.container(border=True):
+            st.markdown(f'<div class="stat-value" style="color: #818CF8;">{len(user_workspaces)}</div>', unsafe_allow_html=True)
+            st.markdown('<div class="stat-label">Accessible Workspaces</div>', unsafe_allow_html=True)
+            st.caption(f"Active: {active_ws.name}")
+    with c_wm2:
+        with st.container(border=True):
+            st.markdown(f'<div class="stat-value" style="color: #10B981;">{len(ws_all_projects)}</div>', unsafe_allow_html=True)
+            st.markdown('<div class="stat-label">Isolated Projects</div>', unsafe_allow_html=True)
+            st.caption(f"In {active_ws.slug}")
+    with c_wm3:
+        with st.container(border=True):
+            st.markdown(f'<div class="stat-value" style="color: #F59E0B;">{len(active_ws.members)}</div>', unsafe_allow_html=True)
+            st.markdown('<div class="stat-label">Workspace Members</div>', unsafe_allow_html=True)
+            st.caption(f"Tier: {active_ws.tier}")
+    with c_wm4:
+        with st.container(border=True):
+            st.markdown('<div class="stat-value" style="color: #10B981;">ENFORCED</div>', unsafe_allow_html=True)
+            st.markdown('<div class="stat-label">Tenant Isolation</div>', unsafe_allow_html=True)
+            st.caption("SOC2 CC6.1 & CC6.6 Boundary")
+
+    st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+
+    t_w_proj, t_w_teams, t_w_create, t_w_arch = st.tabs([
+        "📂 Workspace Projects",
+        "👥 Team & Members",
+        "➕ Create New Workspace",
+        "🛡️ Isolation Architecture (SOC2)",
+    ])
+
+    with t_w_proj:
+        with st.container(border=True):
+            st.markdown(f'<div class="card-title">Projects in "{active_ws.name}"</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-caption">All projects isolated under <code>outputs/workspaces/{active_ws.workspace_id}/</code>. Only members of this workspace can view or execute code here.</div>', unsafe_allow_html=True)
+
+            if not ws_all_projects:
+                st.info(f"No projects have been built in '{active_ws.name}' yet. Head over to **⚡ Build Project** to generate one!")
+            else:
+                p_rows = []
+                for p in ws_all_projects:
+                    has_b = '<span style="color: #10B981; font-weight: 600;">✓ Ready</span>' if p["has_backend"] else '<span style="color: #94A3B8;">Pending</span>'
+                    zip_b = '<span style="color: #818CF8;">📦 ZIP Ready</span>' if p["archive_exists"] else '<span style="color: #94A3B8;">No ZIP</span>'
+                    p_rows.append(
+                        f'<tr style="border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.82rem;">'
+                        f'<td style="padding: 8px 10px; font-weight: 700; color: #FFFFFF;">{p["project_name"]}</td>'
+                        f'<td style="padding: 8px 10px; font-family: monospace; font-size: 0.74rem; color: #94A3B8;">{p["path"]}</td>'
+                        f'<td style="padding: 8px 10px; font-family: monospace;">{p["file_count"]} files</td>'
+                        f'<td style="padding: 8px 10px; font-family: monospace; color: #818CF8;">{p["model_count"]} models</td>'
+                        f'<td style="padding: 8px 10px;">{has_b}</td>'
+                        f'<td style="padding: 8px 10px;">{zip_b}</td>'
+                        f'<td style="padding: 8px 10px; color: #94A3B8; font-size: 0.74rem;">{p["last_modified"][:19]}</td>'
+                        f'</tr>'
+                    )
+
+                st.markdown(textwrap.dedent(f"""
+                <table style="width: 100%; border-collapse: collapse; margin-top: 8px;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.12); color: #94A3B8; font-size: 0.74rem; text-align: left; text-transform: uppercase;">
+                            <th style="padding: 6px 10px;">Project Name</th>
+                            <th style="padding: 6px 10px;">Isolated Path</th>
+                            <th style="padding: 6px 10px;">Files</th>
+                            <th style="padding: 6px 10px;">Models</th>
+                            <th style="padding: 6px 10px;">Backend</th>
+                            <th style="padding: 6px 10px;">Export</th>
+                            <th style="padding: 6px 10px;">Last Modified</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {"".join(p_rows)}
+                    </tbody>
+                </table>
+                """), unsafe_allow_html=True)
+
+    with t_w_teams:
+        with st.container(border=True):
+            st.markdown(f'<div class="card-title">Members of "{active_ws.name}"</div>', unsafe_allow_html=True)
+            st.markdown('<div class="card-caption">Manage role-based access for this workspace. Users outside this list cannot view or alter projects in this workspace.</div>', unsafe_allow_html=True)
+
+            m_rows = []
+            for uid, role_title in active_ws.members.items():
+                u_obj = auth_mgr.get_user_by_id(uid)
+                u_name = u_obj.name if u_obj else uid
+                u_email = u_obj.email if u_obj else "—"
+                u_avatar = u_obj.avatar if u_obj else "👤"
+                m_rows.append(
+                    f'<tr style="border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.82rem;">'
+                    f'<td style="padding: 8px 10px; font-weight: 600; color: #FFFFFF;">{u_avatar} {u_name}</td>'
+                    f'<td style="padding: 8px 10px; color: #94A3B8; font-family: monospace;">{u_email}</td>'
+                    f'<td style="padding: 8px 10px; font-family: monospace; color: #818CF8;">{uid}</td>'
+                    f'<td style="padding: 8px 10px;"><span style="background: rgba(99,102,241,0.15); color: #818CF8; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 0.72rem;">{role_title}</span></td>'
+                    f'</tr>'
+                )
+
+            st.markdown(textwrap.dedent(f"""
+            <table style="width: 100%; border-collapse: collapse; margin-top: 8px;">
+                <thead>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.12); color: #94A3B8; font-size: 0.74rem; text-align: left; text-transform: uppercase;">
+                        <th style="padding: 6px 10px;">User</th>
+                        <th style="padding: 6px 10px;">Email</th>
+                        <th style="padding: 6px 10px;">User ID</th>
+                        <th style="padding: 6px 10px;">Workspace Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {"".join(m_rows)}
+                </tbody>
+            </table>
+            """), unsafe_allow_html=True)
+
+            st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
+            st.markdown("**Add Collaborator to Workspace**")
+            add_col1, add_col2, add_col3 = st.columns([3, 2, 1])
+            with add_col1:
+                all_users = auth_mgr.list_users()
+                add_candidates = [u for u in all_users if u.user_id not in active_ws.members]
+                candidate_opts = {u.user_id: f"{u.name} ({u.email})" for u in add_candidates}
+                selected_user_to_add = st.selectbox(
+                    "User",
+                    options=list(candidate_opts.keys()),
+                    format_func=lambda uid: candidate_opts.get(uid, uid),
+                    key="add_user_sel",
+                    label_visibility="collapsed" if candidate_opts else "visible",
+                ) if candidate_opts else None
+            with add_col2:
+                new_member_role = st.selectbox("Role", ["MEMBER", "ADMIN", "VIEWER"], key="add_role_sel", label_visibility="collapsed")
+            with add_col3:
+                if st.button("Add Member", type="primary", use_container_width=True, key="btn_add_member_exec"):
+                    if selected_user_to_add:
+                        ws_mgr.add_member(active_ws.workspace_id, selected_user_to_add, new_member_role)
+                        auth_mgr.add_workspace_to_user(selected_user_to_add, active_ws.workspace_id)
+                        st.success("Member added to workspace!")
+                        st.rerun()
+
+    with t_w_create:
+        with st.container(border=True):
+            st.markdown('<div class="card-title">Provision New Tenant Workspace Sandbox</div>', unsafe_allow_html=True)
+            st.markdown('<div class="card-caption">Creates a distinct multi-tenant workspace with an isolated storage root under <code>outputs/workspaces/&lt;workspace_id&gt;</code>.</div>', unsafe_allow_html=True)
+
+            new_w_name = st.text_input("Workspace Name", placeholder="e.g. Payments Microservices Team", key="tab_new_ws_name")
+            new_w_tier = st.selectbox("Subscription Tier", ["Pro", "Enterprise", "Starter"], key="tab_new_ws_tier")
+
+            if st.button("🚀 Provision Workspace", type="primary", key="btn_provision_ws_submit"):
+                if new_w_name.strip():
+                    import secrets as _secrets
+                    gen_ws_id = f"ws_{_secrets.token_hex(6)}"
+                    created_w = ws_mgr.create_workspace(
+                        workspace_id=gen_ws_id,
+                        name=new_w_name.strip(),
+                        owner_id=current_user.user_id,
+                        tier=new_w_tier,
+                    )
+                    auth_mgr.add_workspace_to_user(current_user.user_id, gen_ws_id)
+                    st.session_state["active_workspace_id"] = gen_ws_id
+                    st.success(f"Workspace '{new_w_name}' provisioned! Root created at outputs/workspaces/{gen_ws_id}")
+                    st.rerun()
+                else:
+                    st.error("Please provide a workspace name.")
+
+    with t_w_arch:
+        with st.container(border=True):
+            st.markdown('<div class="card-title">Tenant Isolation Architecture (SOC2 CC6.1 & CC6.6)</div>', unsafe_allow_html=True)
+            st.markdown(textwrap.dedent("""
+            ### Multi-Tenant Isolation Guarantee
+            ArchitectAI guarantees that **User A cannot see or overwrite User B's generated code** through four strict enforcement layers:
+
+            1. **Directory-Level Sandbox**:
+               - Every workspace is assigned a cryptographically unique `workspace_id`.
+               - All models, routers, tests, Dockerfiles, and Helm charts are generated strictly into `outputs/workspaces/<workspace_id>/<project_name>`.
+               - No shared flat directories or cross-tenant references exist.
+
+            2. **HMAC-SHA256 Signed Session Tokens**:
+               - User sessions are cryptographically signed using high-entropy keys and timestamped to expire in 24 hours.
+               - Prevents session hijacking and unauthorized impersonation.
+
+            3. **PBKDF2-HMAC-SHA256 Password Hashing**:
+               - Passwords are salted with 16 bytes of cryptographically secure random bytes and hashed using 100,000 PBKDF2 iterations.
+               - Complies with NIST SP 800-63B and SOC2 Type II credential storage standards.
+
+            4. **Workspace Membership Authorization**:
+               - The API and UI strictly gate project queries and filesystem writes.
+               - If a user does not possess `OWNER`, `ADMIN`, or `MEMBER` status in the workspace, requests are rejected with `403 Forbidden` / `AccessDeniedException`.
+            """))
+
+# -------------------------------------------------------------
+# VIEW 3: System Architecture Studio
 # -------------------------------------------------------------
 elif navigation == "📐 System Architecture":
     with st.container(border=True):

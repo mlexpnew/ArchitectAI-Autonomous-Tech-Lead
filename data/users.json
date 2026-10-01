@@ -1,0 +1,76 @@
+[
+  {
+    "user_id": "usr_alex_chen",
+    "email": "alex@architect.ai",
+    "name": "Alex Chen",
+    "hashed_password": "05eb5ef61004aedee47f56b5de5af009$beadc2227d06367316d662f3b0648adf11d13094160596801a1bbc2eae853bbd",
+    "role": "LEAD_ARCHITECT",
+    "avatar": "\ud83d\udc68\u200d\ud83d\udcbc",
+    "workspaces": [
+      "ws_enterprise_core",
+      "ws_alex_personal",
+      "ws_64d6ddca03cf"
+    ],
+    "default_workspace_id": "ws_enterprise_core",
+    "provider": "local",
+    "created_at": "2026-10-01T08:38:25.923681+00:00"
+  },
+  {
+    "user_id": "usr_sarah_vance",
+    "email": "sarah@auditor.corp",
+    "name": "Sarah Vance",
+    "hashed_password": "e82fb9e83f7993dc9af0c1b9aeb6ebb4$b4d04c4bc14f94049d4c70cec153aa833d7d3e18474133bdfd14f3f10696fac0",
+    "role": "AUDITOR",
+    "avatar": "\ud83d\udc69\u200d\u2696\ufe0f",
+    "workspaces": [
+      "ws_compliance_lab"
+    ],
+    "default_workspace_id": "ws_compliance_lab",
+    "provider": "local",
+    "created_at": "2026-10-01T08:38:25.946638+00:00"
+  },
+  {
+    "user_id": "usr_devin_miller",
+    "email": "dev@startup.io",
+    "name": "Devin Miller",
+    "hashed_password": "2ddd20f378655e2dabf497ca1383b913$7148c5b18005486f2027d715f51a85c7fd8669be085a2f6290322afddf740e1b",
+    "role": "DEVELOPER",
+    "avatar": "\ud83d\udc68\u200d\ud83d\udcbb",
+    "workspaces": [
+      "ws_dev_rapid"
+    ],
+    "default_workspace_id": "ws_dev_rapid",
+    "provider": "local",
+    "created_at": "2026-10-01T08:38:25.966876+00:00"
+  },
+  {
+    "user_id": "usr_admin_root",
+    "email": "admin@architect.ai",
+    "name": "Enterprise Admin",
+    "hashed_password": "8bf1b18e9ea5d022cc5c46cff27a37e8$b1e1b13697c4e5e744eca500e79b195badc730d025c830659c35338a4b408d16",
+    "role": "ADMIN",
+    "avatar": "\ud83d\udee1\ufe0f",
+    "workspaces": [
+      "ws_enterprise_core",
+      "ws_compliance_lab",
+      "ws_dev_rapid"
+    ],
+    "default_workspace_id": "ws_enterprise_core",
+    "provider": "local",
+    "created_at": "2026-10-01T08:38:25.986789+00:00"
+  },
+  {
+    "user_id": "usr_377b04c28ddc",
+    "email": "test@company.com",
+    "name": "Test Tester",
+    "hashed_password": "0855b18d5f6717acde09a9ad951d78c9$ae2b468f0309af4ac6a0d66eb0f9f456361e44d96fd44c05dc9b6055eab8decf",
+    "role": "LEAD_ARCHITECT",
+    "avatar": "\ud83d\ude80",
+    "workspaces": [
+      "ws_44280a0a58a0"
+    ],
+    "default_workspace_id": "ws_44280a0a58a0",
+    "provider": "local",
+    "created_at": "2026-10-01T08:38:26.321088+00:00"
+  }
+]

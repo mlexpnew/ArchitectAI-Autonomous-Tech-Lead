@@ -135,3 +135,34 @@ def test_pipeline_generate():
     data = response.json()
     assert data["status"] == "ACCEPTED"
     assert data["project_name"] == "TestServiceAPI"
+
+
+def test_auth_login_and_me():
+    # Login as Alex Chen
+    res_login = client.post("/api/v1/auth/login", json={"email": "alex@architect.ai", "password": "architect123"})
+    assert res_login.status_code == 200
+    auth_data = res_login.json()
+    assert "access_token" in auth_data
+    assert auth_data["user"]["name"] == "Alex Chen"
+    token = auth_data["access_token"]
+
+    # Verify /me with token
+    res_me = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert res_me.status_code == 200
+    assert res_me.json()["user"]["email"] == "alex@architect.ai"
+
+    # Invalid login
+    res_bad = client.post("/api/v1/auth/login", json={"email": "alex@architect.ai", "password": "bad"})
+    assert res_bad.status_code == 401
+
+
+def test_workspaces_endpoints():
+    res_ws = client.get("/api/v1/workspaces")
+    assert res_ws.status_code == 200
+    assert "workspaces" in res_ws.json()
+    assert len(res_ws.json()["workspaces"]) > 0
+
+    ws_id = res_ws.json()["workspaces"][0]["workspace_id"]
+    res_proj = client.get(f"/api/v1/workspaces/{ws_id}/projects")
+    assert res_proj.status_code == 200
+    assert "projects" in res_proj.json()

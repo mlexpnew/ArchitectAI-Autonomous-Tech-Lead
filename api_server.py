@@ -14,7 +14,7 @@ import sys
 import time
 from typing import Any, Dict, List, Optional
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, status
+from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
@@ -31,6 +31,8 @@ from analytics.token_telemetry import (
     get_active_telemetry,
     set_active_telemetry,
 )
+from auth.auth_manager import get_auth_manager
+from auth.workspace_manager import get_workspace_manager
 from config.llm import get_available_router_models
 from config.settings import settings
 from due_diligence.benchmark_suite import BenchmarkSuite, BENCHMARK_DOMAINS
@@ -100,6 +102,26 @@ class GenerateResponse(BaseModel):
     project_name: str
     output_directory: str
     message: str
+
+
+class LoginRequest(BaseModel):
+    email: str = Field(..., example="alex@architect.ai", description="User email address")
+    password: str = Field(..., example="architect123", description="User password")
+
+
+class RegisterRequest(BaseModel):
+    email: str = Field(..., example="founder@stealth.io", description="User email address")
+    password: str = Field(..., min_length=6, example="secure12345", description="Password (min 6 characters)")
+    name: str = Field(..., example="Elena Rostova", description="Full name of user")
+    role: str = Field("LEAD_ARCHITECT", example="LEAD_ARCHITECT", description="RBAC Role")
+    workspace_name: Optional[str] = Field(None, example="Elena's Stealth Lab", description="Custom workspace name")
+
+
+class AuthResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: Dict[str, Any]
+    workspaces: List[Dict[str, Any]]
 
 
 # ============================================================================
@@ -263,6 +285,108 @@ def get_health():
         security_shield="active",
         audit_ledger_status="verified" if integrity.get("is_valid", True) else "tampered",
     )
+
+
+# ============================================================================
+# User Authentication & Workspaces Endpoints
+# ============================================================================
+
+@app.post("/api/v1/auth/login", response_model=AuthResponse, tags=["Authentication & Workspaces"])
+def login(req: LoginRequest):
+    """Authenticates a user via email and password, returning an HMAC session token and workspace list."""
+    am = get_auth_manager()
+    wm = get_workspace_manager()
+    user = am.authenticate_user(req.email, req.password)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password.")
+
+    token = am.create_session_token(user)
+    workspaces = [w.to_dict() for w in wm.list_user_workspaces(user.user_id)]
+
+    return AuthResponse(
+        access_token=token,
+        token_type="bearer",
+        user=user.to_dict(),
+        workspaces=workspaces,
+    )
+
+
+@app.post("/api/v1/auth/register", response_model=AuthResponse, tags=["Authentication & Workspaces"])
+def register(req: RegisterRequest):
+    """Registers a new user account, creates an isolated personal workspace, and returns an access token."""
+    am = get_auth_manager()
+    wm = get_workspace_manager()
+    try:
+        user = am.register_user(
+            email=req.email,
+            password=req.password,
+            name=req.name,
+            role=req.role,
+            default_workspace_name=req.workspace_name,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+    token = am.create_session_token(user)
+    workspaces = [w.to_dict() for w in wm.list_user_workspaces(user.user_id)]
+
+    return AuthResponse(
+        access_token=token,
+        token_type="bearer",
+        user=user.to_dict(),
+        workspaces=workspaces,
+    )
+
+
+@app.get("/api/v1/auth/me", tags=["Authentication & Workspaces"])
+def get_current_user_profile(authorization: Optional[str] = Header(None)):
+    """Returns profile and workspaces for the token passed in Authorization: Bearer <token>."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing or invalid Authorization header.")
+
+    token = authorization.split("Bearer ", 1)[1].strip()
+    am = get_auth_manager()
+    wm = get_workspace_manager()
+    user = am.verify_session_token(token)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Expired or invalid token.")
+
+    workspaces = [w.to_dict() for w in wm.list_user_workspaces(user.user_id)]
+    return {
+        "user": user.to_dict(),
+        "workspaces": workspaces,
+    }
+
+
+@app.get("/api/v1/workspaces", tags=["Authentication & Workspaces"])
+def list_workspaces(authorization: Optional[str] = Header(None)):
+    """Lists workspaces accessible to the user (or all workspaces if admin)."""
+    am = get_auth_manager()
+    wm = get_workspace_manager()
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization.split("Bearer ", 1)[1].strip()
+        user = am.verify_session_token(token)
+        if user:
+            return {"workspaces": [w.to_dict() for w in wm.list_user_workspaces(user.user_id)]}
+
+    return {"workspaces": [w.to_dict() for w in wm.workspaces.values()]}
+
+
+@app.get("/api/v1/workspaces/{workspace_id}/projects", tags=["Authentication & Workspaces"])
+def list_workspace_projects_endpoint(workspace_id: str):
+    """Returns strictly isolated projects generated inside the given workspace."""
+    wm = get_workspace_manager()
+    ws = wm.get_workspace(workspace_id)
+    if not ws:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Workspace '{workspace_id}' not found.")
+
+    projects = wm.list_workspace_projects(workspace_id)
+    return {
+        "workspace_id": workspace_id,
+        "workspace_name": ws.name,
+        "projects_count": len(projects),
+        "projects": projects,
+    }
 
 
 # ============================================================================
