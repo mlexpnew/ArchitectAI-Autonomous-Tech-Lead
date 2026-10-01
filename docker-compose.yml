@@ -16,6 +16,7 @@ services:
     env_file:
       - .env
     volumes:
+      - ./app.py:/app/app.py
       - ./outputs:/app/outputs
       - ./logs:/app/logs
       - ./data:/app/data
