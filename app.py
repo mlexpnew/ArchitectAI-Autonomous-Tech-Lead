@@ -868,15 +868,15 @@ Each billing cycle generates an Invoice for the Organization.""",
                                 cols_badge = ", ".join([f"<code>{c}</code>" for c in col_lines]) if col_lines else "None"
                                 rels_badge = f"<br><strong>Relationships:</strong> {', '.join([f'<code>{r}</code>' for r in rel_lines])}" if rel_lines else ""
 
-                                st.markdown(f"""
+                                blueprint_html = textwrap.dedent(f"""
                                 <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.82rem;">
                                     <div style="color: #F8FAFC; font-weight: 600; margin-bottom: 4px;">📋 Model Blueprint: <code>{m_choice}</code></div>
                                     <div style="color: #94A3B8;">
-                                        <strong>Columns ({len(col_lines)}):</strong> {cols_badge}
-                                        {rels_badge}
+                                        <strong>Columns ({len(col_lines)}):</strong> {cols_badge}{rels_badge}
                                     </div>
                                 </div>
-                                """, unsafe_allow_html=True)
+                                """).strip()
+                                st.markdown(blueprint_html, unsafe_allow_html=True)
                                 st.code(code_text, language="python")
 
                 with t_apis:
