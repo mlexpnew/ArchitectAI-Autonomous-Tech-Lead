@@ -23,6 +23,10 @@ class User:
     workspaces: List[str] = field(default_factory=list)
     default_workspace_id: str = ""
     provider: str = "local"
+    tier: str = "Starter"  # Starter, Pro, Enterprise
+    credits_remaining: int = 3
+    stripe_customer_id: Optional[str] = None
+    stripe_subscription_id: Optional[str] = None
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
     def to_dict(self) -> Dict:
@@ -40,6 +44,10 @@ class User:
             workspaces=data.get("workspaces", []),
             default_workspace_id=data.get("default_workspace_id", ""),
             provider=data.get("provider", "local"),
+            tier=data.get("tier", "Starter"),
+            credits_remaining=data.get("credits_remaining", 3),
+            stripe_customer_id=data.get("stripe_customer_id"),
+            stripe_subscription_id=data.get("stripe_subscription_id"),
             created_at=data.get("created_at", datetime.now(timezone.utc).isoformat()),
         )
 

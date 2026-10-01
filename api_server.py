@@ -33,6 +33,8 @@ from analytics.token_telemetry import (
 )
 from auth.auth_manager import get_auth_manager
 from auth.workspace_manager import get_workspace_manager
+from billing.stripe_manager import get_stripe_manager, PLANS
+import uuid
 from config.llm import get_available_router_models
 from config.settings import settings
 from due_diligence.benchmark_suite import BenchmarkSuite, BENCHMARK_DOMAINS
@@ -122,6 +124,18 @@ class AuthResponse(BaseModel):
     token_type: str = "bearer"
     user: Dict[str, Any]
     workspaces: List[Dict[str, Any]]
+
+
+class CheckoutRequest(BaseModel):
+    plan_id: str = Field("plan_pro_monthly", example="plan_pro_monthly", description="Plan ID: plan_pro_run, plan_pro_monthly, or plan_enterprise")
+    success_url: Optional[str] = Field(None, description="Redirect URL after successful payment")
+    cancel_url: Optional[str] = Field(None, description="Redirect URL if payment cancelled")
+
+
+class WebhookPaymentRequest(BaseModel):
+    user_id: str = Field(..., example="usr_alex_chen", description="User ID to upgrade")
+    plan_id: str = Field("plan_pro_monthly", example="plan_pro_monthly", description="Purchased plan ID")
+    transaction_id: Optional[str] = Field(None, example="ch_3Mtw12345", description="Stripe Charge or Session ID")
 
 
 # ============================================================================
@@ -387,6 +401,91 @@ def list_workspace_projects_endpoint(workspace_id: str):
         "projects_count": len(projects),
         "projects": projects,
     }
+
+
+# ============================================================================
+# Stripe Billing, Pro Payment Links & Subscriptions Endpoints
+# ============================================================================
+
+@app.get("/api/v1/billing/plans", tags=["Billing & Stripe Subscriptions"])
+def list_billing_plans():
+    """Returns all available Stripe subscription plans, pricing, and feature matrices."""
+    sm = get_stripe_manager()
+    return {
+        "plans": [p.to_dict() for p in sm.get_plans().values()],
+        "currency": "USD",
+        "stripe_configured": sm.is_live,
+    }
+
+
+@app.post("/api/v1/billing/checkout", tags=["Billing & Stripe Subscriptions"])
+def create_checkout_session_endpoint(
+    req: CheckoutRequest,
+    authorization: Optional[str] = Header(None),
+):
+    """
+    Generates a Stripe Checkout Session or instant sandbox payment link.
+    """
+    am = get_auth_manager()
+    sm = get_stripe_manager()
+
+    user = None
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization.split("Bearer ", 1)[1].strip()
+        user = am.verify_session_token(token)
+
+    user_id = user.user_id if user else "usr_guest"
+    user_email = user.email if user else "guest@architect.ai"
+
+    session_data = sm.create_checkout_session(
+        user_id=user_id,
+        user_email=user_email,
+        plan_id=req.plan_id,
+        success_url=req.success_url,
+        cancel_url=req.cancel_url,
+    )
+    return session_data
+
+
+@app.post("/api/v1/billing/webhook", tags=["Billing & Stripe Subscriptions"])
+def process_stripe_webhook(req: WebhookPaymentRequest):
+    """
+    Reconciles a successful Stripe payment and activates user's Pro tier or credits.
+    """
+    sm = get_stripe_manager()
+    txn_id = req.transaction_id or f"txn_{uuid.uuid4().hex[:12]}"
+    user = sm.process_successful_payment(
+        user_id=req.user_id,
+        plan_id=req.plan_id,
+        transaction_id=txn_id,
+    )
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User '{req.user_id}' not found.")
+
+    return {
+        "success": True,
+        "message": f"Successfully upgraded {user.email} to {user.tier}.",
+        "user_id": user.user_id,
+        "new_tier": user.tier,
+        "credits_remaining": user.credits_remaining,
+        "transaction_id": txn_id,
+    }
+
+
+@app.get("/api/v1/billing/credits", tags=["Billing & Stripe Subscriptions"])
+def check_credits_endpoint(authorization: Optional[str] = Header(None)):
+    """Returns generation credit balance and tier for authenticated user."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing Authorization Bearer header.")
+
+    token = authorization.split("Bearer ", 1)[1].strip()
+    am = get_auth_manager()
+    user = am.verify_session_token(token)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid session token.")
+
+    sm = get_stripe_manager()
+    return sm.check_user_generation_credits(user)
 
 
 # ============================================================================

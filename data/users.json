@@ -13,6 +13,10 @@
     ],
     "default_workspace_id": "ws_enterprise_core",
     "provider": "local",
+    "tier": "Pro",
+    "credits_remaining": 999999,
+    "stripe_customer_id": null,
+    "stripe_subscription_id": "test_txn_001",
     "created_at": "2026-10-01T08:38:25.923681+00:00"
   },
   {
@@ -27,6 +31,10 @@
     ],
     "default_workspace_id": "ws_compliance_lab",
     "provider": "local",
+    "tier": "Starter",
+    "credits_remaining": 3,
+    "stripe_customer_id": null,
+    "stripe_subscription_id": null,
     "created_at": "2026-10-01T08:38:25.946638+00:00"
   },
   {
@@ -41,6 +49,10 @@
     ],
     "default_workspace_id": "ws_dev_rapid",
     "provider": "local",
+    "tier": "Starter",
+    "credits_remaining": 3,
+    "stripe_customer_id": null,
+    "stripe_subscription_id": null,
     "created_at": "2026-10-01T08:38:25.966876+00:00"
   },
   {
@@ -57,6 +69,10 @@
     ],
     "default_workspace_id": "ws_enterprise_core",
     "provider": "local",
+    "tier": "Starter",
+    "credits_remaining": 3,
+    "stripe_customer_id": null,
+    "stripe_subscription_id": null,
     "created_at": "2026-10-01T08:38:25.986789+00:00"
   },
   {
@@ -71,6 +87,46 @@
     ],
     "default_workspace_id": "ws_44280a0a58a0",
     "provider": "local",
+    "tier": "Starter",
+    "credits_remaining": 3,
+    "stripe_customer_id": null,
+    "stripe_subscription_id": null,
     "created_at": "2026-10-01T08:38:26.321088+00:00"
+  },
+  {
+    "user_id": "usr_supabase_9f07faf71903",
+    "email": "elena@supabase-cloud.io",
+    "name": "Elena",
+    "hashed_password": "fa461ff715d21a8dd5a9cc782e914b3d$9e7f518c881b022af2a074b9ff947bce1277fb677a6b7b80cbaf59d82d7289ec",
+    "role": "LEAD_ARCHITECT",
+    "avatar": "\u26a1",
+    "workspaces": [
+      "ws_0aeab3fb3385"
+    ],
+    "default_workspace_id": "ws_0aeab3fb3385",
+    "provider": "supabase",
+    "tier": "Starter",
+    "credits_remaining": 3,
+    "stripe_customer_id": null,
+    "stripe_subscription_id": null,
+    "created_at": "2026-10-01T09:51:31.958347+00:00"
+  },
+  {
+    "user_id": "usr_clerk_c009c823cf8f",
+    "email": "clerk_lead@clerk.dev",
+    "name": "Clerk Tech Lead",
+    "hashed_password": "1b4c32c0d911a9b35106f0df99fd6ff7$ccc424fd3605610b30df54ce9d388eb749dbf51201a9ecf3bd433600be387f11",
+    "role": "LEAD_ARCHITECT",
+    "avatar": "\ud83d\udd11",
+    "workspaces": [
+      "ws_2b4949fdd196"
+    ],
+    "default_workspace_id": "ws_2b4949fdd196",
+    "provider": "clerk",
+    "tier": "Starter",
+    "credits_remaining": 3,
+    "stripe_customer_id": null,
+    "stripe_subscription_id": null,
+    "created_at": "2026-10-01T09:51:31.980514+00:00"
   }
 ]

@@ -3760,5 +3760,884 @@
     },
     "prev_hash": "cbe93872b31ee30f134959fba289319c5b721e4fb92a5ed8210bcb162afdee5f",
     "entry_hash": "aa656ef774d77baf6a2be59586c0ab47935008fca31196be642768ab5ac92267"
+  },
+  {
+    "event_id": "bd06a66c-4ffb-4ac4-a1f9-366078401ae7",
+    "timestamp": "2026-10-01T09:53:07.489983+00:00",
+    "event_type": "THREAT_SANDBOX_SCAN",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Scanned 51 chars for injections and credentials",
+    "resource": "ThreatSandbox",
+    "status": "SUCCESS",
+    "details": {
+      "safe": true,
+      "risk_level": "LOW",
+      "patterns": [],
+      "redactions": 0
+    },
+    "prev_hash": "aa656ef774d77baf6a2be59586c0ab47935008fca31196be642768ab5ac92267",
+    "entry_hash": "0129feaa9059670b9904095ac653a2eab711287f9ef6cf8b5e6391f90e68ebd7"
+  },
+  {
+    "event_id": "06b213d3-fedd-4700-8338-800eab7c095a",
+    "timestamp": "2026-10-01T09:53:07.497294+00:00",
+    "event_type": "THREAT_SANDBOX_SCAN",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Scanned 81 chars for injections and credentials",
+    "resource": "ThreatSandbox",
+    "status": "BLOCKED",
+    "details": {
+      "safe": false,
+      "risk_level": "CRITICAL",
+      "patterns": [
+        "Ignore previous instructions",
+        "Print your system prompt"
+      ],
+      "redactions": 0
+    },
+    "prev_hash": "0129feaa9059670b9904095ac653a2eab711287f9ef6cf8b5e6391f90e68ebd7",
+    "entry_hash": "998eca28fe4040ce5740d88528744f90d4b11d4aad4ade9be05167f6a70f4d18"
+  },
+  {
+    "event_id": "d6bc2127-81f2-4212-a88c-dd12053df078",
+    "timestamp": "2026-10-01T09:53:07.501597+00:00",
+    "event_type": "THREAT_SANDBOX_SCAN",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Scanned 84 chars for injections and credentials",
+    "resource": "ThreatSandbox",
+    "status": "SUCCESS",
+    "details": {
+      "safe": true,
+      "risk_level": "LOW",
+      "patterns": [],
+      "redactions": 2
+    },
+    "prev_hash": "998eca28fe4040ce5740d88528744f90d4b11d4aad4ade9be05167f6a70f4d18",
+    "entry_hash": "4303c1156b3b27747a3f512ca31cf7ab2b5b953037c24ec9e7805718b3bf0e1a"
+  },
+  {
+    "event_id": "7f0d6945-5586-417d-a1b3-5c68d40f6c81",
+    "timestamp": "2026-10-01T09:53:07.593657+00:00",
+    "event_type": "PIPELINE_TRIGGERED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Triggered generation for TestServiceAPI",
+    "resource": "ArchitectPipeline",
+    "status": "RUNNING",
+    "details": {
+      "job_id": "job_1790848387_testservicea",
+      "project_name": "TestServiceAPI",
+      "self_healing": true
+    },
+    "prev_hash": "4303c1156b3b27747a3f512ca31cf7ab2b5b953037c24ec9e7805718b3bf0e1a",
+    "entry_hash": "926a4d001fa4150b6a0c61fd66eb5566aa36cbe0a5174e6c8166c4cb6bb7755e"
+  },
+  {
+    "event_id": "f0d8dda4-c527-4445-a27d-7941be6adbb4",
+    "timestamp": "2026-10-01T10:00:22.645700+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "SpeedTest",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 31,
+      "redactions_applied": 0
+    },
+    "prev_hash": "926a4d001fa4150b6a0c61fd66eb5566aa36cbe0a5174e6c8166c4cb6bb7755e",
+    "entry_hash": "0cba5aaaaa7f2c5d1afd2d01891b4b65fb5a2119649e6834918647118cb5a2fd"
+  },
+  {
+    "event_id": "4ca19cbb-418d-4da0-966a-8edbe1cb24a8",
+    "timestamp": "2026-10-01T10:00:25.970851+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "0cba5aaaaa7f2c5d1afd2d01891b4b65fb5a2119649e6834918647118cb5a2fd",
+    "entry_hash": "d5ee203bc69f1a0bc18e520ebfb1fe4e1170403620eb7d30aed9eaa11792002a"
+  },
+  {
+    "event_id": "7bcb0c9a-91e1-46da-8519-1c9d064b81d5",
+    "timestamp": "2026-10-01T10:00:25.989904+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "SpeedTest",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "SpeedTest",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 3247,
+      "total_cost_usd": 0.002229
+    },
+    "prev_hash": "d5ee203bc69f1a0bc18e520ebfb1fe4e1170403620eb7d30aed9eaa11792002a",
+    "entry_hash": "6b894642518a12bfde812da768c221410fa54ffb6451ff8aee2f348768f1fb67"
+  },
+  {
+    "event_id": "9b41f2bb-483d-4b6e-908c-a8fdf4e97a37",
+    "timestamp": "2026-10-01T10:02:31.790507+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "6b894642518a12bfde812da768c221410fa54ffb6451ff8aee2f348768f1fb67",
+    "entry_hash": "7ebd414eb139c9ccb4b2fc88f2996d72d3e4e625b506375c0b68917f96348355"
+  },
+  {
+    "event_id": "19ea16cd-68bb-4c6a-9929-f82bc08e4926",
+    "timestamp": "2026-10-01T10:02:31.830767+00:00",
+    "event_type": "THREAT_SANDBOX_SCAN",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Scanned 51 chars for injections and credentials",
+    "resource": "ThreatSandbox",
+    "status": "SUCCESS",
+    "details": {
+      "safe": true,
+      "risk_level": "LOW",
+      "patterns": [],
+      "redactions": 0
+    },
+    "prev_hash": "7ebd414eb139c9ccb4b2fc88f2996d72d3e4e625b506375c0b68917f96348355",
+    "entry_hash": "4d3372f9a2a02f9a1460f61d708311f60e2e1c678e2967a48a2857dd87686c8c"
+  },
+  {
+    "event_id": "5bbfed4f-d701-47c6-aa6d-fb8e5f447a17",
+    "timestamp": "2026-10-01T10:02:31.834966+00:00",
+    "event_type": "THREAT_SANDBOX_SCAN",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Scanned 81 chars for injections and credentials",
+    "resource": "ThreatSandbox",
+    "status": "BLOCKED",
+    "details": {
+      "safe": false,
+      "risk_level": "CRITICAL",
+      "patterns": [
+        "Ignore previous instructions",
+        "Print your system prompt"
+      ],
+      "redactions": 0
+    },
+    "prev_hash": "4d3372f9a2a02f9a1460f61d708311f60e2e1c678e2967a48a2857dd87686c8c",
+    "entry_hash": "ff796b6735545d6bdbb04d4972fdf14a4a4643a8cbc68eb597b92064b92342a0"
+  },
+  {
+    "event_id": "bb1d2492-f9bd-462e-a935-6b2af32df354",
+    "timestamp": "2026-10-01T10:02:31.838832+00:00",
+    "event_type": "THREAT_SANDBOX_SCAN",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Scanned 84 chars for injections and credentials",
+    "resource": "ThreatSandbox",
+    "status": "SUCCESS",
+    "details": {
+      "safe": true,
+      "risk_level": "LOW",
+      "patterns": [],
+      "redactions": 2
+    },
+    "prev_hash": "ff796b6735545d6bdbb04d4972fdf14a4a4643a8cbc68eb597b92064b92342a0",
+    "entry_hash": "3f445d158434025b53215ca311ee94c79ed7e5c0ae1b79e27a65d65668ad520c"
+  },
+  {
+    "event_id": "ba919b73-1d10-47db-b71e-4019a8640129",
+    "timestamp": "2026-10-01T10:02:31.945906+00:00",
+    "event_type": "PIPELINE_TRIGGERED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Triggered generation for TestServiceAPI",
+    "resource": "ArchitectPipeline",
+    "status": "RUNNING",
+    "details": {
+      "job_id": "job_1790848951_testservicea",
+      "project_name": "TestServiceAPI",
+      "self_healing": true
+    },
+    "prev_hash": "3f445d158434025b53215ca311ee94c79ed7e5c0ae1b79e27a65d65668ad520c",
+    "entry_hash": "2a9e44c3a65a5051a5d43a3b94326c843df5e9596c1f98c5bc914116d63de421"
+  },
+  {
+    "event_id": "20a8c837-3b99-4361-94fb-50a79a67549f",
+    "timestamp": "2026-10-01T10:02:34.784895+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "Healthcare & Hospital Information System",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 179,
+      "redactions_applied": 0
+    },
+    "prev_hash": "2a9e44c3a65a5051a5d43a3b94326c843df5e9596c1f98c5bc914116d63de421",
+    "entry_hash": "b3c19d159fbc50f822d0268afe7a7b97ca8c197efcce9bf992f0ff74912c9869"
+  },
+  {
+    "event_id": "df4fdf2b-9292-4961-bd20-7834af551df6",
+    "timestamp": "2026-10-01T10:02:36.227444+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "b3c19d159fbc50f822d0268afe7a7b97ca8c197efcce9bf992f0ff74912c9869",
+    "entry_hash": "f87202821d8fd501e79c8658e4c1caf2e798a7f3112adc2c0f22202d45de7429"
+  },
+  {
+    "event_id": "2c10de87-de6f-487c-8922-cb5968004818",
+    "timestamp": "2026-10-01T10:02:36.242685+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "Healthcare & Hospital Information System",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "Healthcare & Hospital Information System",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 2879,
+      "total_cost_usd": 0.001987
+    },
+    "prev_hash": "f87202821d8fd501e79c8658e4c1caf2e798a7f3112adc2c0f22202d45de7429",
+    "entry_hash": "f3cdb906b9ec28ffe016ee133226d1e615871ced68d01de56defa9d19cc1101d"
+  },
+  {
+    "event_id": "4d6cd1b1-4604-499b-ba34-b4b4a7327719",
+    "timestamp": "2026-10-01T10:02:36.248264+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "Healthcare & Hospital Information System",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 179,
+      "redactions_applied": 0
+    },
+    "prev_hash": "f3cdb906b9ec28ffe016ee133226d1e615871ced68d01de56defa9d19cc1101d",
+    "entry_hash": "d74ad0fab83f83c8b32977931f65299a7d64cd4545e12ad1374643149bf4254d"
+  },
+  {
+    "event_id": "5ab98821-12e8-4890-a119-62f693b012bc",
+    "timestamp": "2026-10-01T10:02:37.609458+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "d74ad0fab83f83c8b32977931f65299a7d64cd4545e12ad1374643149bf4254d",
+    "entry_hash": "532c52c97eefcc37e3e0532b4a222ba6a262a5912dbab2fdd50aa449f596f4da"
+  },
+  {
+    "event_id": "d79f6d7b-b9b5-45fd-964c-afd093604afd",
+    "timestamp": "2026-10-01T10:02:37.624786+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "Healthcare & Hospital Information System",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "Healthcare & Hospital Information System",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 2879,
+      "total_cost_usd": 0.001987
+    },
+    "prev_hash": "532c52c97eefcc37e3e0532b4a222ba6a262a5912dbab2fdd50aa449f596f4da",
+    "entry_hash": "385b7100d82d3603736ef1dce2560a50dea9927967d65e060a3b7bf97c114f77"
+  },
+  {
+    "event_id": "1cde8c7b-7bda-472c-b396-d4d1f8e2b232",
+    "timestamp": "2026-10-01T10:02:37.629168+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "FinTech & Transaction Banking",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 162,
+      "redactions_applied": 0
+    },
+    "prev_hash": "385b7100d82d3603736ef1dce2560a50dea9927967d65e060a3b7bf97c114f77",
+    "entry_hash": "beb42df6da01a09b7e9fb2b71820db35eb8b667ebef4e6c7fa94be0f05e49c8e"
+  },
+  {
+    "event_id": "6f36b6c4-72cf-411c-94c7-1291be01b42c",
+    "timestamp": "2026-10-01T10:02:38.923638+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "beb42df6da01a09b7e9fb2b71820db35eb8b667ebef4e6c7fa94be0f05e49c8e",
+    "entry_hash": "e760580ec686b187e373366588319696e5fd3da4c05d331c1ae8bb1ca10612be"
+  },
+  {
+    "event_id": "5f73b7ea-f2a6-4f04-b523-205cc33ea7cc",
+    "timestamp": "2026-10-01T10:02:38.938850+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "FinTech & Transaction Banking",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "FinTech & Transaction Banking",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 2871,
+      "total_cost_usd": 0.001981
+    },
+    "prev_hash": "e760580ec686b187e373366588319696e5fd3da4c05d331c1ae8bb1ca10612be",
+    "entry_hash": "e0282e6e73ca3ad11c06d002063643f925ff14d940a14c2e0971910a44cb5963"
+  },
+  {
+    "event_id": "83c794a4-a21c-4809-a3f7-808c1566f324",
+    "timestamp": "2026-10-01T10:02:38.951052+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "Healthcare & Hospital Information System",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 179,
+      "redactions_applied": 0
+    },
+    "prev_hash": "e0282e6e73ca3ad11c06d002063643f925ff14d940a14c2e0971910a44cb5963",
+    "entry_hash": "a52ee6b8612d8d02f26e441f49dd8bd8a3e751410839435fabeafe5e008ef061"
+  },
+  {
+    "event_id": "05d9a3b8-2fe7-4635-aa41-393eaea122c1",
+    "timestamp": "2026-10-01T10:02:40.496636+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "a52ee6b8612d8d02f26e441f49dd8bd8a3e751410839435fabeafe5e008ef061",
+    "entry_hash": "8d63302077387ec98336d2a0c1e0aaf93c40bda97c5e04de08c66b2ca9f8a711"
+  },
+  {
+    "event_id": "35857d50-7295-4af5-a477-7b33316467d7",
+    "timestamp": "2026-10-01T10:02:40.514236+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "Healthcare & Hospital Information System",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "Healthcare & Hospital Information System",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 2879,
+      "total_cost_usd": 0.001987
+    },
+    "prev_hash": "8d63302077387ec98336d2a0c1e0aaf93c40bda97c5e04de08c66b2ca9f8a711",
+    "entry_hash": "40099d4050c95f8c456c1d446d717794fa52253143c194a55e35fdc3cd566183"
+  },
+  {
+    "event_id": "a237ad36-0fa0-4674-9a26-a9f1727bddf3",
+    "timestamp": "2026-10-01T10:02:40.518796+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "FinTech & Transaction Banking",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 162,
+      "redactions_applied": 0
+    },
+    "prev_hash": "40099d4050c95f8c456c1d446d717794fa52253143c194a55e35fdc3cd566183",
+    "entry_hash": "385c5716d881eaf297e6fc3abb38581ded587b6aec2a411d5090ba4ae6885f02"
+  },
+  {
+    "event_id": "d577d00e-c6cd-47ae-bf86-ac7c8a92df68",
+    "timestamp": "2026-10-01T10:02:42.000757+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "385c5716d881eaf297e6fc3abb38581ded587b6aec2a411d5090ba4ae6885f02",
+    "entry_hash": "68603bd211eed63f64689253af7624827359ad4674e0b8eac41ea9bd72e02563"
+  },
+  {
+    "event_id": "49398721-caaf-4697-8d91-49270c5a01bd",
+    "timestamp": "2026-10-01T10:02:42.016627+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "FinTech & Transaction Banking",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "FinTech & Transaction Banking",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 2871,
+      "total_cost_usd": 0.001981
+    },
+    "prev_hash": "68603bd211eed63f64689253af7624827359ad4674e0b8eac41ea9bd72e02563",
+    "entry_hash": "54f463deebc2d40d920f86f35c4ee82c9fd30b42a879924d315ce185bc0934ab"
+  },
+  {
+    "event_id": "b3d445fb-f298-438b-af89-c4a66e23df3f",
+    "timestamp": "2026-10-01T10:02:42.020853+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "Enterprise E-Commerce Platform",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 155,
+      "redactions_applied": 0
+    },
+    "prev_hash": "54f463deebc2d40d920f86f35c4ee82c9fd30b42a879924d315ce185bc0934ab",
+    "entry_hash": "4bdde76c85c799ff69862ae5bbfa7f6d7fbeba97eb4dd2bc8019c133afeb0b4d"
+  },
+  {
+    "event_id": "627382f9-aded-434f-baca-da5cd1b9e1d9",
+    "timestamp": "2026-10-01T10:02:43.462032+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "4bdde76c85c799ff69862ae5bbfa7f6d7fbeba97eb4dd2bc8019c133afeb0b4d",
+    "entry_hash": "9b87cb8b1e76b12aa44e3d54b83327ce5ee7fb8dc7848fdaf2a008e46773eb8a"
+  },
+  {
+    "event_id": "d41a2ece-4f45-4245-bcf1-a8259413ca1a",
+    "timestamp": "2026-10-01T10:02:43.477678+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "Enterprise E-Commerce Platform",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "Enterprise E-Commerce Platform",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 2871,
+      "total_cost_usd": 0.001981
+    },
+    "prev_hash": "9b87cb8b1e76b12aa44e3d54b83327ce5ee7fb8dc7848fdaf2a008e46773eb8a",
+    "entry_hash": "0e59d0d708808e385a07c58720d5e6eb5167b8ffe1f74cdf1ad0e3a7c698b46c"
+  },
+  {
+    "event_id": "d2844a06-6568-4bce-abb5-e47611bc3120",
+    "timestamp": "2026-10-01T10:02:43.482667+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "Multi-Tenant SaaS CRM",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 144,
+      "redactions_applied": 0
+    },
+    "prev_hash": "0e59d0d708808e385a07c58720d5e6eb5167b8ffe1f74cdf1ad0e3a7c698b46c",
+    "entry_hash": "72f4f04e91a818a4f1d72b44174af0fbf4bf852be3f4591b77720aee29534569"
+  },
+  {
+    "event_id": "43e719fb-8548-44eb-930e-54263fe23601",
+    "timestamp": "2026-10-01T10:02:45.226079+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "72f4f04e91a818a4f1d72b44174af0fbf4bf852be3f4591b77720aee29534569",
+    "entry_hash": "ff783a5b28955acd175718ccc4fe8233d5798f4dd06b3e776343aa93ae1fdf40"
+  },
+  {
+    "event_id": "92b4e3e7-052f-4c21-a976-2561ade1c152",
+    "timestamp": "2026-10-01T10:02:45.242797+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "Multi-Tenant SaaS CRM",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "Multi-Tenant SaaS CRM",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 2867,
+      "total_cost_usd": 0.001979
+    },
+    "prev_hash": "ff783a5b28955acd175718ccc4fe8233d5798f4dd06b3e776343aa93ae1fdf40",
+    "entry_hash": "2046238a5a24cb5a09fd5658bbb850fab4782f7ece2a25df02cc334292b1a374"
+  },
+  {
+    "event_id": "e668f564-cacd-4efc-9640-7436554cf4ef",
+    "timestamp": "2026-10-01T10:02:45.247883+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "Supply Chain & Inventory Management",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 148,
+      "redactions_applied": 0
+    },
+    "prev_hash": "2046238a5a24cb5a09fd5658bbb850fab4782f7ece2a25df02cc334292b1a374",
+    "entry_hash": "5f4b1f0fe8b08130005a41246feb34262c058bcb0b1372a2895bc7d64d676eda"
+  },
+  {
+    "event_id": "8e42efc6-5cd9-42c2-bcbf-bad1564237eb",
+    "timestamp": "2026-10-01T10:02:47.213879+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "5f4b1f0fe8b08130005a41246feb34262c058bcb0b1372a2895bc7d64d676eda",
+    "entry_hash": "5a2f73ac2ac5d172ce2f57aca630a3de470803784b6677ab359e98c585fc0d03"
+  },
+  {
+    "event_id": "b5b789c8-d29c-4311-9d84-6e0a6d71485f",
+    "timestamp": "2026-10-01T10:02:47.232096+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "Supply Chain & Inventory Management",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "Supply Chain & Inventory Management",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 2865,
+      "total_cost_usd": 0.001978
+    },
+    "prev_hash": "5a2f73ac2ac5d172ce2f57aca630a3de470803784b6677ab359e98c585fc0d03",
+    "entry_hash": "4ae8336aff7e5ba45a5269a7782ff1f713c2f89326498ff06f743d72985f6bba"
+  },
+  {
+    "event_id": "f97c0b33-9bc5-40c5-89e9-e559db603cce",
+    "timestamp": "2026-10-01T10:02:47.236908+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "EdTech & Academic ERP",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 145,
+      "redactions_applied": 0
+    },
+    "prev_hash": "4ae8336aff7e5ba45a5269a7782ff1f713c2f89326498ff06f743d72985f6bba",
+    "entry_hash": "ce032e62fded4c4059224bdf3937653ce94190a9a37f489e145153688ba1296f"
+  },
+  {
+    "event_id": "e2451d5a-b0d6-4e1d-88f5-587b70d9c0eb",
+    "timestamp": "2026-10-01T10:02:48.805774+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "ce032e62fded4c4059224bdf3937653ce94190a9a37f489e145153688ba1296f",
+    "entry_hash": "2db782e46a4a3dc50f5428cf7683718b0cac31bd49174fc12eb5a8d215ec4dab"
+  },
+  {
+    "event_id": "575e1dd6-7072-46dd-a1b8-88eac7320098",
+    "timestamp": "2026-10-01T10:02:48.821811+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "EdTech & Academic ERP",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "EdTech & Academic ERP",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 2867,
+      "total_cost_usd": 0.001979
+    },
+    "prev_hash": "2db782e46a4a3dc50f5428cf7683718b0cac31bd49174fc12eb5a8d215ec4dab",
+    "entry_hash": "2038dab70b3c80ff84b24a53b0cdedde65e88886b10291ef5196e3ce1d4e11e0"
+  },
+  {
+    "event_id": "b48923ad-f288-4124-86ad-49ee32a7e673",
+    "timestamp": "2026-10-01T10:02:48.826404+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "Hospitality & Booking Engine",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 140,
+      "redactions_applied": 0
+    },
+    "prev_hash": "2038dab70b3c80ff84b24a53b0cdedde65e88886b10291ef5196e3ce1d4e11e0",
+    "entry_hash": "62a13be3fe1c234ee24fc87af88e1af5dc56cea46e4c0dd3a3aa84a18ae7890d"
+  },
+  {
+    "event_id": "1baf8546-95de-4fd8-ba67-9717031fe060",
+    "timestamp": "2026-10-01T10:02:50.424806+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "62a13be3fe1c234ee24fc87af88e1af5dc56cea46e4c0dd3a3aa84a18ae7890d",
+    "entry_hash": "268104417b815608af6f09909e5e4659820435fc64e7bc47ec0cf20af59e232f"
+  },
+  {
+    "event_id": "400d3add-d393-424c-a52e-4821969110ca",
+    "timestamp": "2026-10-01T10:02:50.448606+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "Hospitality & Booking Engine",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "Hospitality & Booking Engine",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 2865,
+      "total_cost_usd": 0.001978
+    },
+    "prev_hash": "268104417b815608af6f09909e5e4659820435fc64e7bc47ec0cf20af59e232f",
+    "entry_hash": "9d9246a011afe137f3c907971ee81bc81cba4df5ef47b539f457100452a5df73"
+  },
+  {
+    "event_id": "38fe6136-bb92-4452-94b0-d414279a3b86",
+    "timestamp": "2026-10-01T10:02:50.453128+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "Digital Library & Catalog Service",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 141,
+      "redactions_applied": 0
+    },
+    "prev_hash": "9d9246a011afe137f3c907971ee81bc81cba4df5ef47b539f457100452a5df73",
+    "entry_hash": "97b363b0b9b6e087129fdf25d35b6e7e7d8b34aa1f2fc1a3dbf9ebe747b5d63f"
+  },
+  {
+    "event_id": "a4e971d5-4743-46db-9de5-487c01e1ecfd",
+    "timestamp": "2026-10-01T10:02:52.167410+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "97b363b0b9b6e087129fdf25d35b6e7e7d8b34aa1f2fc1a3dbf9ebe747b5d63f",
+    "entry_hash": "1c0a15df656245a76daf16374a8341c339d69a12cdad27001db8b9db7abe35e8"
+  },
+  {
+    "event_id": "88245668-3673-4c88-a8db-afbdc87ed762",
+    "timestamp": "2026-10-01T10:02:52.183902+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "Digital Library & Catalog Service",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "Digital Library & Catalog Service",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 2866,
+      "total_cost_usd": 0.001979
+    },
+    "prev_hash": "1c0a15df656245a76daf16374a8341c339d69a12cdad27001db8b9db7abe35e8",
+    "entry_hash": "d6be0eab4071193808cdc0e47d02ab3017c64f72b5b96f0125da9bc545091900"
+  },
+  {
+    "event_id": "682c489f-8bd3-4ece-90cc-2d80321f15d7",
+    "timestamp": "2026-10-01T10:02:52.287855+00:00",
+    "event_type": "PROMPT_INJECTION_BLOCKED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Blocked adversarial prompt injection attempt",
+    "resource": "MaliciousApp",
+    "status": "BLOCKED",
+    "details": {
+      "threat_type": "INSTRUCTION_OVERRIDE",
+      "threat_score": 0.95,
+      "matched_patterns": [
+        "Ignore all previous instructions"
+      ],
+      "actor_name": "User"
+    },
+    "prev_hash": "d6be0eab4071193808cdc0e47d02ab3017c64f72b5b96f0125da9bc545091900",
+    "entry_hash": "884665966689c96263a31ab5ee2d788364f7eef5576dc34feba44776d535591f"
+  },
+  {
+    "event_id": "7217772e-1dc2-4e5c-9155-0aa301ad34c7",
+    "timestamp": "2026-10-01T10:02:52.291422+00:00",
+    "event_type": "SECRET_REDACTED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Redacted sensitive credentials or PII from prompt",
+    "resource": "PaymentService",
+    "status": "FLAGGED",
+    "details": {
+      "redaction_count": 1,
+      "credential_types": [
+        "AWS_ACCESS_KEY"
+      ],
+      "actor_name": "User"
+    },
+    "prev_hash": "884665966689c96263a31ab5ee2d788364f7eef5576dc34feba44776d535591f",
+    "entry_hash": "7e7d373101281b4eaa8961104dba7d92e7ba0456dfc5362b54b63b38533c4bec"
+  },
+  {
+    "event_id": "ccbe943d-9ad1-4751-a856-837879482d72",
+    "timestamp": "2026-10-01T10:02:52.295116+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "PaymentService",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 80,
+      "redactions_applied": 1
+    },
+    "prev_hash": "7e7d373101281b4eaa8961104dba7d92e7ba0456dfc5362b54b63b38533c4bec",
+    "entry_hash": "b4772ea00cfa565e852c7505f668736a9cdd7b826bc5ef8160deaad59c2221a4"
+  },
+  {
+    "event_id": "3177540f-254e-4fe0-b739-b07c2455fcdf",
+    "timestamp": "2026-10-01T10:02:53.775033+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "b4772ea00cfa565e852c7505f668736a9cdd7b826bc5ef8160deaad59c2221a4",
+    "entry_hash": "a5676558850481d52de838780f5e2dd4e92e6813ac35679f78c0a0092a103487"
+  },
+  {
+    "event_id": "5adc3851-e75e-4fec-a50b-d9fa0b93833d",
+    "timestamp": "2026-10-01T10:02:53.791268+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "PaymentService",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "PaymentService",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 2839,
+      "total_cost_usd": 0.001963
+    },
+    "prev_hash": "a5676558850481d52de838780f5e2dd4e92e6813ac35679f78c0a0092a103487",
+    "entry_hash": "57d318a204da8c52f68bcfa12094c65c02851614933ecc69e6e864987433ed6a"
+  },
+  {
+    "event_id": "b80b9989-d3b1-44ca-826f-da16982a068c",
+    "timestamp": "2026-10-01T10:02:55.873900+00:00",
+    "event_type": "INPUT_VALIDATION_PASSED",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Input validated and cleared by security guardrails",
+    "resource": "TodoApp",
+    "status": "SUCCESS",
+    "details": {
+      "actor_name": "User",
+      "input_length": 56,
+      "redactions_applied": 0
+    },
+    "prev_hash": "57d318a204da8c52f68bcfa12094c65c02851614933ecc69e6e864987433ed6a",
+    "entry_hash": "59c0b9b3de6c9d6eaab4c9629c36af71cb7d48f1ed6a0329ff1ec11ac183daad"
+  },
+  {
+    "event_id": "84c5baff-f050-4c80-bc02-a878adff6555",
+    "timestamp": "2026-10-01T10:02:57.579059+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "59c0b9b3de6c9d6eaab4c9629c36af71cb7d48f1ed6a0329ff1ec11ac183daad",
+    "entry_hash": "c149fa696a8870d39bbc9b30824d5219a3001c4045488ab42e35ae2646eef052"
+  },
+  {
+    "event_id": "9987f2cd-98eb-4770-9e50-7a5431897dc2",
+    "timestamp": "2026-10-01T10:02:57.597110+00:00",
+    "event_type": "PIPELINE_LIFECYCLE",
+    "actor_role": "LEAD_ARCHITECT",
+    "action": "Pipeline Generation Completed",
+    "resource": "TodoApp",
+    "status": "SUCCESS",
+    "details": {
+      "project_name": "TodoApp",
+      "model_used": "qwen/qwen3.8-27b",
+      "total_tokens": 2830,
+      "total_cost_usd": 0.001957
+    },
+    "prev_hash": "c149fa696a8870d39bbc9b30824d5219a3001c4045488ab42e35ae2646eef052",
+    "entry_hash": "dca46180f12b4ab509627fe25b1c04390c04b3c677922ba413af8f04879bf2c5"
+  },
+  {
+    "event_id": "f95a8fa7-ffa8-41fe-87de-c84cebd48af6",
+    "timestamp": "2026-10-01T10:02:58.147469+00:00",
+    "event_type": "AGENT_SECURITY_SCAN",
+    "actor_role": "SYSTEM",
+    "action": "Security Agent performed SAST code audit",
+    "resource": "backend",
+    "status": "SUCCESS",
+    "details": {
+      "files_scanned": 1,
+      "total_findings": 0
+    },
+    "prev_hash": "dca46180f12b4ab509627fe25b1c04390c04b3c677922ba413af8f04879bf2c5",
+    "entry_hash": "5a571ce05b588bbdd365e3ddc8465a75bd1818099e965ccabe1f7ea76bafcc62"
   }
 ]

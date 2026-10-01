@@ -104,5 +104,29 @@
       "usr_alex_chen": "OWNER"
     },
     "projects": []
+  },
+  {
+    "workspace_id": "ws_0aeab3fb3385",
+    "name": "Elena's Workspace",
+    "slug": "elena-s-workspace",
+    "owner_id": "usr_supabase_9f07faf71903",
+    "tier": "Pro",
+    "created_at": "2026-10-01T09:51:31.960013+00:00",
+    "members": {
+      "usr_supabase_9f07faf71903": "OWNER"
+    },
+    "projects": []
+  },
+  {
+    "workspace_id": "ws_2b4949fdd196",
+    "name": "Clerk Tech Lead's Workspace",
+    "slug": "clerk-tech-lead-s-workspace",
+    "owner_id": "usr_clerk_c009c823cf8f",
+    "tier": "Pro",
+    "created_at": "2026-10-01T09:51:31.980918+00:00",
+    "members": {
+      "usr_clerk_c009c823cf8f": "OWNER"
+    },
+    "projects": []
   }
 ]

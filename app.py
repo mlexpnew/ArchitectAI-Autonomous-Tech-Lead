@@ -70,6 +70,8 @@ from security_guardrails.rbac import Role, Permission, has_permission, AccessDen
 from auth.auth_manager import get_auth_manager
 from auth.workspace_manager import get_workspace_manager
 from auth.models import User, Workspace
+from auth.clerk_supabase_integration import get_federated_auth_provider
+from billing.stripe_manager import get_stripe_manager, PLANS
 
 # -------------------------------------------------------------
 # Page Configuration
@@ -388,6 +390,24 @@ st.markdown("""
 # -------------------------------------------------------------
 auth_mgr = get_auth_manager()
 ws_mgr = get_workspace_manager()
+stripe_mgr = get_stripe_manager()
+fed_auth = get_federated_auth_provider()
+
+# Handle Stripe Payment Redirect
+if hasattr(st, "query_params"):
+    qp = st.query_params
+    if qp.get("payment_status") == "success" and "authenticated_user" in st.session_state:
+        plan_id = qp.get("plan_id", "plan_pro_monthly")
+        sess_id = qp.get("session_id", "sess_stripe_return")
+        curr_u = st.session_state["authenticated_user"]
+        upgraded_u = stripe_mgr.process_successful_payment(curr_u.user_id, plan_id, sess_id)
+        if upgraded_u:
+            st.session_state["authenticated_user"] = upgraded_u
+            st.toast(f"🎉 Stripe Payment Verified! Upgraded to {upgraded_u.tier}.", icon="💳")
+            try:
+                st.query_params.clear()
+            except Exception:
+                pass
 
 # If unauthenticated, gate the entire application with the Enterprise Login Portal
 if "authenticated_user" not in st.session_state:
@@ -627,7 +647,14 @@ with col_hdr_brand:
     """, unsafe_allow_html=True)
 
 with col_hdr_ctx:
-    ch_ws, ch_user, ch_out = st.columns([4, 4, 2])
+    credit_info = stripe_mgr.check_user_generation_credits(current_user)
+    badge_color = "#10B981" if credit_info["is_unlimited"] else "#F59E0B"
+    badge_bg = "rgba(16,185,129,0.12)" if credit_info["is_unlimited"] else "rgba(245,158,11,0.12)"
+    badge_border = "rgba(16,185,129,0.3)" if credit_info["is_unlimited"] else "rgba(245,158,11,0.3)"
+
+    ch_pay, ch_ws, ch_user, ch_out = st.columns([3, 3, 3, 2])
+    with ch_pay:
+        st.markdown(f'<div style="text-align: right; padding-top: 6px;"><span style="background: {badge_bg}; border: 1px solid {badge_border}; border-radius: 6px; padding: 4px 8px; font-size: 0.74rem; font-weight: 700; color: {badge_color};">{credit_info["badge"]}</span></div>', unsafe_allow_html=True)
     with ch_ws:
         st.markdown(f'<div style="text-align: right; padding-top: 6px;"><span style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; font-weight: 600; color: #818CF8;">🏢 {active_ws.name}</span></div>', unsafe_allow_html=True)
     with ch_user:
@@ -638,6 +665,37 @@ with col_hdr_ctx:
             st.rerun()
 
 st.markdown('<div style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 20px;"></div>', unsafe_allow_html=True)
+
+# -------------------------------------------------------------
+# Active Stripe Checkout Modal Dialog
+# -------------------------------------------------------------
+if "stripe_checkout_modal" in st.session_state:
+    chk = st.session_state["stripe_checkout_modal"]
+    plan_info = chk.get("plan", {})
+    with st.container(border=True):
+        st.markdown(f"""
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div class="card-title">💳 Stripe Checkout · {plan_info.get('name', 'Architect Pro')}</div>
+            <span style="background: rgba(99,102,241,0.2); color: #818CF8; border: 1px solid rgba(99,102,241,0.4); font-size: 0.72rem; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">{chk.get('mode', 'sandbox').upper()}</span>
+        </div>
+        <div class="card-caption">{plan_info.get('description', '')} · Price: <b>{plan_info.get('display_price', '$49')}</b></div>
+        """, unsafe_allow_html=True)
+
+        sc_c1, sc_c2, sc_c3 = st.columns([3, 3, 2])
+        with sc_c1:
+            st.link_button(f"Open Stripe Payment Link ({plan_info.get('display_price', '$49')}) ↗", chk["checkout_url"], type="primary", use_container_width=True)
+        with sc_c2:
+            if st.button("⚡ Simulate Instant Payment (Sandbox)", use_container_width=True, key="btn_sim_pay"):
+                upg = stripe_mgr.process_successful_payment(current_user.user_id, plan_info.get("plan_id", "plan_pro_monthly"), chk.get("session_id", "sim_sess"))
+                if upg:
+                    st.session_state["authenticated_user"] = upg
+                st.session_state.pop("stripe_checkout_modal", None)
+                st.success(f"Payment successful! Upgraded to {plan_info.get('name')}.")
+                st.rerun()
+        with sc_c3:
+            if st.button("Dismiss", use_container_width=True, key="btn_close_stripe"):
+                st.session_state.pop("stripe_checkout_modal", None)
+                st.rerun()
 
 # -------------------------------------------------------------
 # Sidebar: User Profile, Workspace Switcher & Clean Navigation
@@ -655,10 +713,30 @@ with st.sidebar:
         </div>
         <div style="margin-top: 6px; display: flex; gap: 6px; align-items: center;">
             <span style="background: rgba(16, 185, 129, 0.15); color: #10B981; font-size: 0.68rem; font-weight: 600; padding: 1px 6px; border-radius: 4px;">{current_user.role}</span>
-            <span style="background: rgba(99, 102, 241, 0.15); color: #818CF8; font-size: 0.68rem; font-weight: 600; padding: 1px 6px; border-radius: 4px;">{active_ws.tier}</span>
+            <span style="background: rgba(99, 102, 241, 0.15); color: #818CF8; font-size: 0.68rem; font-weight: 600; padding: 1px 6px; border-radius: 4px;">{current_user.tier}</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+    # Stripe Pro Upgrade Expander for non-unlimited users
+    if not credit_info["is_unlimited"]:
+        with st.expander(f"⚡ {credit_info['badge']} · Upgrade", expanded=False):
+            st.markdown("""
+            <div style="font-size: 0.78rem; color: #94A3B8; margin-bottom: 8px;">
+                Upgrade to <b>Architect Pro</b> for unlimited autonomous builds & 1-click GitHub PR creation.
+            </div>
+            """, unsafe_allow_html=True)
+            col_b1, col_b2 = st.columns(2)
+            with col_b1:
+                if st.button("Single Run\n$19", use_container_width=True, key="btn_buy_single_run"):
+                    chk = stripe_mgr.create_checkout_session(current_user.user_id, current_user.email, "plan_pro_run")
+                    st.session_state["stripe_checkout_modal"] = chk
+                    st.rerun()
+            with col_b2:
+                if st.button("Pro Monthly\n$49/mo", type="primary", use_container_width=True, key="btn_buy_pro_monthly"):
+                    chk = stripe_mgr.create_checkout_session(current_user.user_id, current_user.email, "plan_pro_monthly")
+                    st.session_state["stripe_checkout_modal"] = chk
+                    st.rerun()
 
     # Active Workspace Switcher
     st.markdown("**Active Workspace**")
@@ -906,7 +984,16 @@ Each billing cycle generates an Invoice for the Organization.""",
             """, unsafe_allow_html=True)
 
             st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
-            build_btn = st.button("Build service", type="primary", use_container_width=True)
+            credit_check = stripe_mgr.check_user_generation_credits(current_user)
+            if not credit_check["can_generate"]:
+                st.warning("⚠️ **Starter Generation Quota Exhausted**: You have 0 runs remaining. Upgrade to Architect Pro for unlimited autonomous microservice builds.")
+                if st.button("💳 Upgrade to Pro Unlimited ($49/mo)", key="btn_upgrade_quota_exhausted", type="primary", use_container_width=True):
+                    chk = stripe_mgr.create_checkout_session(current_user.user_id, current_user.email, "plan_pro_monthly")
+                    st.session_state["stripe_checkout_modal"] = chk
+                    st.rerun()
+                build_btn = False
+            else:
+                build_btn = st.button("Build service", type="primary", use_container_width=True)
 
     # RIGHT: Live Progress & Results beside the form
     with col_results:
@@ -915,6 +1002,14 @@ Each billing cycle generates an Invoice for the Organization.""",
             if not requirements.strip():
                 st.error("Please enter project requirements.")
             else:
+                # Decrement credit if user is on limited quota
+                if not credit_check["is_unlimited"]:
+                    stripe_mgr.consume_generation_credit(current_user.user_id)
+                    refreshed_u = auth_mgr.get_user_by_id(current_user.user_id)
+                    if refreshed_u:
+                        st.session_state["authenticated_user"] = refreshed_u
+                        current_user = refreshed_u
+
                 with st.spinner("Building service..."):
                     try:
                         role_key = st.session_state.get("global_actor_role", "Lead Architect").upper().replace(" ", "_")
@@ -1843,10 +1938,11 @@ elif navigation == "🏢 Workspaces & Teams":
 
     st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
-    t_w_proj, t_w_teams, t_w_create, t_w_arch = st.tabs([
+    t_w_proj, t_w_teams, t_w_create, t_w_bill, t_w_arch = st.tabs([
         "📂 Workspace Projects",
         "👥 Team & Members",
         "➕ Create New Workspace",
+        "💳 Billing & Subscriptions",
         "🛡️ Isolation Architecture (SOC2)",
     ])
 
@@ -1977,6 +2073,125 @@ elif navigation == "🏢 Workspaces & Teams":
                     st.rerun()
                 else:
                     st.error("Please provide a workspace name.")
+
+    with t_w_bill:
+        with st.container(border=True):
+            st.markdown('<div class="card-title">💳 Billing, Stripe Checkout & Subscriptions</div>', unsafe_allow_html=True)
+            st.markdown('<div class="card-caption">Manage generation credits, upgrade subscription tiers via Stripe Checkout, and monitor identity federation.</div>', unsafe_allow_html=True)
+
+            u_cred = stripe_mgr.check_user_generation_credits(current_user)
+            b_c1, b_c2, b_c3 = st.columns(3)
+            with b_c1:
+                with st.container(border=True):
+                    st.markdown(f'<div class="stat-value" style="color: #818CF8;">{current_user.tier}</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="stat-label">Active Plan Tier</div>', unsafe_allow_html=True)
+                    st.caption(f"User: {current_user.email}")
+            with b_c2:
+                with st.container(border=True):
+                    val_str = "UNLIMITED" if u_cred["is_unlimited"] else f"{u_cred['credits_remaining']} Runs"
+                    val_color = "#10B981" if u_cred["is_unlimited"] else "#F59E0B"
+                    st.markdown(f'<div class="stat-value" style="color: {val_color};">{val_str}</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="stat-label">Generation Allowance</div>', unsafe_allow_html=True)
+                    st.caption(f"Status: {u_cred['badge']}")
+            with b_c3:
+                with st.container(border=True):
+                    sub_id = current_user.stripe_subscription_id or "sub_sandbox_demo"
+                    st.markdown(f'<div class="stat-value" style="font-size: 0.95rem; font-family: monospace; color: #94A3B8; padding-top: 6px;">{sub_id[:16]}...</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="stat-label">Stripe Subscription ID</div>', unsafe_allow_html=True)
+                    st.caption("Auto-renewing via Stripe")
+
+            st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
+            st.markdown("### Choose an ArchitectAI Plan")
+
+            p_col1, p_col2, p_col3 = st.columns(3)
+            plans = stripe_mgr.get_plans()
+
+            # Plan 1: Single Pro Run ($19)
+            with p_col1:
+                p1 = plans["plan_pro_run"]
+                with st.container(border=True):
+                    st.markdown(f"""
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #FFFFFF;">{p1.name}</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: #F8FAFC; margin: 8px 0 4px 0;">{p1.display_price}</div>
+                    <div style="font-size: 0.76rem; color: #94A3B8; margin-bottom: 12px;">{p1.description}</div>
+                    <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px; margin-bottom: 12px;">
+                        {''.join([f'<div style="font-size: 0.76rem; color: #CBD5E1; margin-bottom: 4px;">✓ {f}</div>' for f in p1.features])}
+                    </div>
+                    """, unsafe_allow_html=True)
+                    if st.button("Buy Single Run ($19)", key="btn_tab_buy_run", use_container_width=True):
+                        chk = stripe_mgr.create_checkout_session(current_user.user_id, current_user.email, "plan_pro_run")
+                        st.session_state["stripe_checkout_modal"] = chk
+                        st.rerun()
+
+            # Plan 2: Architect Pro Monthly ($49/mo)
+            with p_col2:
+                p2 = plans["plan_pro_monthly"]
+                is_curr_pro = current_user.tier in ("Pro", "Pro Monthly")
+                with st.container(border=True):
+                    st.markdown(f"""
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 1.1rem; font-weight: 700; color: #FFFFFF;">{p2.name}</span>
+                        <span style="background: rgba(99,102,241,0.25); color: #818CF8; border: 1px solid rgba(99,102,241,0.5); font-size: 0.70rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">POPULAR</span>
+                    </div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: #818CF8; margin: 8px 0 4px 0;">{p2.display_price}</div>
+                    <div style="font-size: 0.76rem; color: #94A3B8; margin-bottom: 12px;">{p2.description}</div>
+                    <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px; margin-bottom: 12px;">
+                        {''.join([f'<div style="font-size: 0.76rem; color: #CBD5E1; margin-bottom: 4px;">✓ {f}</div>' for f in p2.features])}
+                    </div>
+                    """, unsafe_allow_html=True)
+                    if is_curr_pro:
+                        st.button("✓ Active Plan", disabled=True, key="btn_tab_active_pro", use_container_width=True)
+                    else:
+                        if st.button("🚀 Upgrade to Pro ($49/mo)", type="primary", key="btn_tab_buy_pro", use_container_width=True):
+                            chk = stripe_mgr.create_checkout_session(current_user.user_id, current_user.email, "plan_pro_monthly")
+                            st.session_state["stripe_checkout_modal"] = chk
+                            st.rerun()
+
+            # Plan 3: Enterprise SOC2 ($499/mo)
+            with p_col3:
+                p3 = plans["plan_enterprise"]
+                is_curr_ent = current_user.tier == "Enterprise"
+                with st.container(border=True):
+                    st.markdown(f"""
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #FFFFFF;">{p3.name}</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: #10B981; margin: 8px 0 4px 0;">{p3.display_price}</div>
+                    <div style="font-size: 0.76rem; color: #94A3B8; margin-bottom: 12px;">{p3.description}</div>
+                    <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px; margin-bottom: 12px;">
+                        {''.join([f'<div style="font-size: 0.76rem; color: #CBD5E1; margin-bottom: 4px;">✓ {f}</div>' for f in p3.features])}
+                    </div>
+                    """, unsafe_allow_html=True)
+                    if is_curr_ent:
+                        st.button("✓ Active Enterprise", disabled=True, key="btn_tab_active_ent", use_container_width=True)
+                    else:
+                        if st.button("Contact Enterprise ($499)", key="btn_tab_buy_ent", use_container_width=True):
+                            chk = stripe_mgr.create_checkout_session(current_user.user_id, current_user.email, "plan_enterprise")
+                            st.session_state["stripe_checkout_modal"] = chk
+                            st.rerun()
+
+            st.markdown("<div style='height: 16px;'></div>", unsafe_allow_html=True)
+            st.markdown(textwrap.dedent("""
+            ### 🌐 Federated Authentication & Payment Gateway Infrastructure
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px;">
+                <div style="background: #0A0D14; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+                    <div style="font-weight: 700; color: #818CF8; font-size: 0.88rem; margin-bottom: 4px;">💳 Stripe Billing Engine</div>
+                    <div style="font-size: 0.76rem; color: #94A3B8; line-height: 1.4;">
+                        Checkout Sessions & Webhooks active. Handles recurring subscriptions, single-run tokens, and SOC2 audit ledger reconciliation.
+                    </div>
+                </div>
+                <div style="background: #0A0D14; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+                    <div style="font-weight: 700; color: #10B981; font-size: 0.88rem; margin-bottom: 4px;">⚡ Supabase Auth (GoTrue)</div>
+                    <div style="font-size: 0.76rem; color: #94A3B8; line-height: 1.4;">
+                        PostgreSQL Row Level Security (RLS) compatible JWT tokens with automated profile provisioning and tenant workspace mapping.
+                    </div>
+                </div>
+                <div style="background: #0A0D14; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+                    <div style="font-weight: 700; color: #F59E0B; font-size: 0.88rem; margin-bottom: 4px;">🔑 Clerk Auth Identity</div>
+                    <div style="font-size: 0.76rem; color: #94A3B8; line-height: 1.4;">
+                        JWKS bearer session verification, multi-factor authentication (MFA), and enterprise Single Sign-On (SAML/OIDC).
+                    </div>
+                </div>
+            </div>
+            """), unsafe_allow_html=True)
 
     with t_w_arch:
         with st.container(border=True):
