@@ -45,6 +45,31 @@ jobs:
         run: |
           pytest -v --tb=short
 
+  verify-generation:
+    name: Verify generated projects actually work (CRUD round-trips)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Generate 8 projects and verify each one
+        env:
+          MOCK_LLM: "True"
+          APP_ENV: "test"
+          PYTHONPATH: "."
+        run: |
+          python benchmark/verify_generated.py --out benchmark/results
+          cat benchmark/results/report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification
+          path: benchmark/results/
+
   docker-build:
     name: Docker Buildx Verification
     runs-on: ubuntu-latest
