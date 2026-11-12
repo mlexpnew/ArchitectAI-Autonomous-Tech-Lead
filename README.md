@@ -3,7 +3,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Architecture: Clean Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-orange.svg)](#architecture)
-[![Testing: Pytest](https://img.shields.io/badge/Testing-Pytest%20Passing-brightgreen.svg)](#testing)
+[![CI](https://github.com/mlexpnew/ArchitectAI-Autonomous-Tech-Lead/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mlexpnew/ArchitectAI-Autonomous-Tech-Lead/actions/workflows/ci.yml)
 
 **ArchitectAI** is an autonomous, multi-agent AI tech lead and engineering pipeline. It transforms natural-language software specifications into production-ready, clean-architecture backend codebases with automated AST validation, self-healing code repair, deployment packaging, and multi-agent artifact generation.
 
@@ -17,6 +17,23 @@
 - **🌐 Resilient Multi-Provider LLM Engine**: Seamlessly dispatches across **Groq** (Llama-3.3-70B), **Google Gemini** (Gemini-2.5-Flash / Pro), **OpenAI** (GPT-4o), and **Ollama** (local models) using OpenAI-compatible transports with exponential backoff and offline mock modes.
 - **🤖 Autonomous Agent Collaboration**: Features specialized agent personas (Solution Architect, Database Architect, Backend Engineer, QA Engineer, Security Engineer, DevOps, and Documentation) collaborating over a versioned [`ArtifactRegistry`](artifacts/registry.py).
 - **📦 Production Packaging & Export**: Automatically emits `Dockerfile`, `docker-compose.yml`, environment configurations, README documentation, zip archives, and markdown generation reports.
+
+---
+
+## ✅ Verified, not claimed
+
+Every push runs [`benchmark/verify_generated.py`](benchmark/verify_generated.py) in CI. For each of the 8 example specifications it generates a project, compiles every file, boots the FastAPI app and runs a **full CRUD round-trip on every entity** (create, read back and compare fields, update, delete, confirm 404; parent entities first so foreign keys resolve), then runs the project's own tests.
+
+| Check (CI, mock LLM) | Result |
+|---|---|
+| Projects generated | 8 / 8 |
+| Generated `.py` files that compile | 200 / 200 |
+| Apps that boot | 8 / 8 |
+| CRUD checks passed | 112 / 112 |
+| Generated test suites passing | 32 / 32 tests |
+| Time per project | about 3 s |
+
+**What this does and does not prove.** In mock mode the LLM is stubbed, so every project receives the same two placeholder entities: the run proves the generation pipeline turns a blueprint into a working, tested API, **not** that it understands each requirements file. To measure that, add a `GROQ_API_KEY` (or `GOOGLE_API_KEY`) repository secret and run **Actions → CI → Run workflow → live**: the same table then reports entities per domain from a real model.
 
 ---
 
