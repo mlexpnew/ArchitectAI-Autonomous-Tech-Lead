@@ -11,6 +11,11 @@ on:
       - main
       - master
   workflow_dispatch:
+    inputs:
+      live:
+        description: "Verify with a real LLM (needs GROQ_API_KEY or GOOGLE_API_KEY secret)"
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -58,7 +63,9 @@ jobs:
         run: pip install -r requirements.txt
       - name: Generate 8 projects and verify each one
         env:
-          MOCK_LLM: "True"
+          MOCK_LLM: ${{ inputs.live && 'False' || 'True' }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           APP_ENV: "test"
           PYTHONPATH: "."
         run: |
