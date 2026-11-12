@@ -20,6 +20,23 @@
 
 ---
 
+## ✅ Verified, not claimed
+
+Every push runs [`benchmark/verify_generated.py`](benchmark/verify_generated.py) in CI. For each of the 8 example specifications it generates a project, compiles every file, boots the FastAPI app and runs a **full CRUD round-trip on every entity** (create, read back and compare fields, update, delete, confirm 404; parent entities first so foreign keys resolve), then runs the project's own tests.
+
+| Check (CI, mock LLM) | Result |
+|---|---|
+| Projects generated | 8 / 8 |
+| Generated `.py` files that compile | 200 / 200 |
+| Apps that boot | 8 / 8 |
+| CRUD checks passed | 112 / 112 |
+| Generated test suites passing | 32 / 32 tests |
+| Time per project | about 3 s |
+
+**What this does and does not prove.** In mock mode the LLM is stubbed, so every project receives the same two placeholder entities: the run proves the generation pipeline turns a blueprint into a working, tested API, **not** that it understands each requirements file. To measure that, add a `GROQ_API_KEY` (or `GOOGLE_API_KEY`) repository secret and run **Actions → CI → Run workflow → live**: the same table then reports entities per domain from a real model.
+
+---
+
 ## 📁 Repository Structure
 
 ```bash
