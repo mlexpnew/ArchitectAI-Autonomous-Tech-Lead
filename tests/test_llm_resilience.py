@@ -14,6 +14,7 @@ def test_settings_provider_fallback_to_gemini():
     """Verify that if Groq key is missing but Google key is present, provider resolves to gemini."""
     s = Settings(
         LLM_PROVIDER="groq",
+        MOCK_LLM=False,  # CI sets MOCK_LLM=True globally
         GROQ_API_KEY="",
         GOOGLE_API_KEY="test_gemini_key",
     )
@@ -26,6 +27,7 @@ def test_settings_provider_fallback_to_openai():
     """Verify fallback to OpenAI when Groq and Gemini keys are missing."""
     s = Settings(
         LLM_PROVIDER="groq",
+        MOCK_LLM=False,  # CI sets MOCK_LLM=True globally
         GROQ_API_KEY="",
         GOOGLE_API_KEY="",
         OPENAI_API_KEY="sk-test",
@@ -39,6 +41,7 @@ def test_settings_ollama_provider():
     """Verify Ollama local provider resolution."""
     s = Settings(
         LLM_PROVIDER="ollama",
+        MOCK_LLM=False,
     )
     assert s.get_active_provider() == "ollama"
     assert s.has_valid_api_key() is True

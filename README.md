@@ -3,7 +3,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Architecture: Clean Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-orange.svg)](#architecture)
-[![Testing: Pytest](https://img.shields.io/badge/Testing-Pytest%20Passing-brightgreen.svg)](#testing)
+[![CI](https://github.com/mlexpnew/ArchitectAI-Autonomous-Tech-Lead/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mlexpnew/ArchitectAI-Autonomous-Tech-Lead/actions/workflows/ci.yml)
 
 **ArchitectAI** is an autonomous, multi-agent AI tech lead and engineering pipeline. It transforms natural-language software specifications into production-ready, clean-architecture backend codebases with automated AST validation, self-healing code repair, deployment packaging, and multi-agent artifact generation.
 

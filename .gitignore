@@ -40,3 +40,9 @@ build/
 dist/
 *.egg-info/
 *.egg
+
+# Secrets and local runtime data: never commit
+.streamlit/secrets.toml
+data/users.json
+data/workspaces.json
+benchmark/results/
